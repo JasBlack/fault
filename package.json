@@ -1,0 +1,32 @@
+{
+  "name": "fault-video-instrument",
+  "version": "0.4.0",
+  "description": "An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback",
+  "author": "JAS.BLACK",
+  "license": "MIT",
+  "homepage": "https://fault.jas.black",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "build": "python3 build.py",
+    "start": "electron .",
+    "build:mac": "electron-builder --mac --dir"
+  },
+  "devDependencies": {
+    "electron": "45.0.0",
+    "electron-builder": "^26.0.0"
+  },
+  "build": {
+    "appId": "black.jas.fault",
+    "productName": "FAULT",
+    "files": [
+      "FAULT.html",
+      "main.cjs",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.video",
+      "identity": null
+    }
+  }
+}

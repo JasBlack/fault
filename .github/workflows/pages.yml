@@ -1,0 +1,59 @@
+# Checks the build and publishes FAULT.html to GitHub Pages on every push to main.
+# One-time setup: repo Settings → Pages → Source: "GitHub Actions"; custom domain fault.jas.black.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Check JavaScript syntax
+        run: |
+          node --check src/app.js
+          node --check src/engine.js
+          node --check main.cjs
+      - name: Check FAULT.html is up to date
+        run: |
+          python3 build.py
+          git diff --exit-code FAULT.html || { echo "::error::FAULT.html is out of date. Run 'python3 build.py' and commit the result."; exit 1; }
+      - name: Prepare site
+        run: |
+          mkdir _site
+          cp FAULT.html _site/index.html
+          cp FAULT.html _site/FAULT.html
+          cp CNAME _site/CNAME
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
