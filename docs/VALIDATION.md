@@ -45,3 +45,11 @@ The deliverable is an experimental prototype, not a production release or a sign
 - Fixed: the hidden notification toast could peek into view on narrow or scrolled layouts; it is now fully hidden when inactive.
 - 0.4 restyle re-checked the same way: look tiles, both themes, phone layout, bottom-right toast. Recording produced a WebM take and the rec LED lit red.
 - Still not verified: real-GPU performance on a Mac, Safari, file dialogs, playback of recorded takes, and the Electron shell.
+
+## 0.4.1 media and drop checks (headless Chromium)
+
+- Simulated drops on the stage, the console panel and input B, plus the file picker. The page never navigated away, and there were no page errors.
+- Drop highlight stays on while moving over child elements and clears when the drag leaves.
+- Loaded: WebM (VP9), MP4 and MOV (H.264), MKV with no MIME type, animated GIF and WebP (frames advance), SVG, a 6000 × 3000 JPEG.
+- ProRes .mov and a corrupt .mov show the codec message and keep the current source.
+- Not checked: HEVC .mov, HEIC in Safari, real Finder drag-and-drop on macOS.

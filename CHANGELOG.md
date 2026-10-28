@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.4.1 — dropping and media
+
+- Drop files anywhere on the page. The browser never opens or downloads a dropped file any more (previously a drop that missed the stage handler could open the picture or download a .mov).
+- The drop highlight no longer flickers while dragging over the stage.
+- Drop onto **interferer / input b** to load the second signal (purple highlight). Two files at once fill both inputs. Patch `.json` files can be dropped too.
+- Animated GIF, WebP, APNG and AVIF now play and loop (decoded with WebCodecs), with seeking.
+- Files without a browser-supplied type (often .mov and .mkv) are recognised by extension. Pictures go through a canvas, which adds SVG and very large photos.
+- Clear messages for undecodable files, such as ProRes .mov in Chrome or HEIC outside Safari.
+
 ## 0.4.0 — JAS.BLACK tool family
 
 Brought FAULT in line with Code Painter, SnipSnap and Growth:

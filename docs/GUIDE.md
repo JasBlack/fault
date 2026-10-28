@@ -12,6 +12,14 @@
 
 The source's brightness, contrast, detail and colour strongly influence the bend. Start with high-contrast footage, adjust Frequency slowly, then push Drive and Fold.
 
+## Loading media
+
+- Click **open picture / video**, or drop files anywhere on the page. The browser never opens or downloads a dropped file.
+- Drop onto **interferer / input b** to load the second signal. Dropping two files at once loads the first as the source and the second as the interferer. Dropping a saved patch (`.json`) restores its settings.
+- **Pictures:** PNG, JPEG, WebP, AVIF, SVG, BMP and anything else your browser opens. HEIC opens in Safari only. Very large photos are scaled to 4096 px on the long side.
+- **Animated pictures:** GIF, animated WebP, APNG and animated AVIF loop like a video and can be scrubbed with the seek bar. This needs a browser with WebCodecs (current Chrome, Edge, Firefox or Safari). Older browsers show the first frame.
+- **Video:** MP4, MOV, WebM and MKV, as long as your browser can decode the codec inside. H.264 and VP9 are safe. HEVC depends on your Mac and browser. ProRes does not play in Chrome, so export it as H.264 MP4 or try Safari. A file that can't be decoded gets a message and leaves the current source running.
+
 ## Playback and capture
 
 - Space pauses/resumes source playback and oscillators. Feedback processing can still settle while paused.

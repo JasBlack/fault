@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.4.0
+Version 0.4.1
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -14,7 +14,7 @@ FAULT encodes a picture or video into a simplified composite signal, then bends 
 
 1. Open [fault.jas.black](https://fault.jas.black) in a current desktop Chrome. WebGL 2 with floating-point rendering is required.
 2. The built-in Orbit source is already running. Try the **hot circuit**, **voltage fold** and **lost lock** looks.
-3. Click **open picture / video**, or drop a file onto the stage. H.264 MP4, PNG and JPEG work best.
+3. Click **open picture / video**, or drop a file anywhere on the page. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
 4. Press **record** to capture 1080p video (no audio). Use **save patch** to keep your settings.
 
 | Key | Action |
