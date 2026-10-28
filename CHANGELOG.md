@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 — icon and link preview
+
+- New FAULT icon (a torn signal wave, green with a violet ghost) for browser tabs, bookmarks and home screens: SVG, 32 px PNG, .ico, Apple touch icon, 192/512 px manifest icons.
+- Link-preview card (1200 × 630) for pasted links in iMessage, Slack, Discord, X and others, in the same style as the other JAS.BLACK tools.
+- Web manifest, Open Graph and X card tags. Deploy now publishes `public/` beside the page. Sources are in `design/`.
+
 ## 0.4.1 — dropping and media
 
 - Drop files anywhere on the page. The browser never opens or downloads a dropped file any more (previously a drop that missed the stage handler could open the picture or download a .mov).

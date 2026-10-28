@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.4.1
+Version 0.4.2
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -43,6 +43,8 @@ src/            editable source
 build.py        inlines src/ into FAULT.html
 FAULT.html      built single-file edition (committed)
 main.cjs        Electron desktop shell
+public/         icons, web manifest and link-preview card (deployed beside the page)
+design/         sources for the icons and card
 test/           headless shader pipeline checks (Linux, EGL/Mesa)
 ```
 

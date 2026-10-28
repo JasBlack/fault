@@ -43,6 +43,7 @@ jobs:
           cp FAULT.html _site/index.html
           cp FAULT.html _site/FAULT.html
           cp CNAME _site/CNAME
+          cp public/* _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
