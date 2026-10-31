@@ -5,9 +5,9 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="FAULT by JAS.BLACK"><meta name="twitter:description" content="Bend pictures, GIFs and video through a broken circuit: resonant bends, voltage folds and lost sync. Free, in your browser."><meta name="twitter:image" content="https://fault.jas.black/og.jpg"><link rel="stylesheet" href="style.css"></head>
 <body data-ui="dark">
 <header>
- <div class="header-left"><div class="brand">FAULT</div><div class="view-switch" role="group" aria-label="Workspace view"><button id="consoleView" class="selected" aria-pressed="true">console</button><button id="outputView" aria-pressed="false">output</button></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
+ <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.4.2</span></div><div class="view-switch" role="group" aria-label="Workspace view"><button id="consoleView" class="selected" aria-pressed="true">console</button><button id="outputView" aria-pressed="false">output</button></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
  <div class="transport"><button id="play" title="Pause / resume (Space)">Ⅱ pause</button><button id="clear" class="primary" title="Clear signal and frame memory (C)">⟲ clear</button><button id="record" class="record-key"><span class="rec-dot"></span> record</button></div>
- <div class="header-right"><span class="credit">JAS.BLACK</span><button id="help" title="How to use FAULT">guide</button><button id="fullscreen" class="icon-key" title="Fullscreen output" aria-label="Fullscreen output">⛶</button><button id="theme" class="icon-key" title="Light / dark" aria-label="Switch to light theme">◐</button></div>
+ <div class="header-right"><button id="help" title="How to use FAULT">guide</button><button id="fullscreen" class="icon-key" title="Fullscreen output" aria-label="Fullscreen output">⛶</button><button id="theme" class="icon-key" title="Light / dark" aria-label="Switch to light theme">◐</button></div>
 </header>
 <main>
  <aside class="source-column">
@@ -15,7 +15,7 @@
   <section class="panel looks-panel"><div class="panel-title"><b><i>2</i> look</b><span>starting points</span></div><div id="presets" class="presets"></div><p class="hint">pick a look, then tune the circuit</p></section>
   <section class="panel memory-panel"><div class="panel-title"><b><i>3</i> memory</b><span>your settings</span></div><div class="row"><button id="savePatch">save patch ↓</button><button id="loadPatch">load patch ↑</button></div><p id="patchStatus" class="hint">patches keep settings, not footage</p></section>
   <section class="panel capture-panel"><div class="panel-title"><b><i>4</i> capture</b><span>keep it</span></div><div class="capture-spec"><span>1920 × 1080</span><span>30 fps target</span></div><p id="recInfo">Live capture · video only · 30 fps target</p><div id="takes"></div><p class="hint">record above · stop to save your take</p></section>
-  <div class="family-note">FAULT <span>by JAS.BLACK</span><small>signal instrument / v0.4.2</small></div>
+  <div class="family-note">FAULT <span>by JAS.BLACK</span><small>signal instrument</small></div>
  </aside>
  <section class="workbench">
   <div class="monitor-top"><span><i class="led"></i> <b id="patchName">HOT CIRCUIT</b></span><span id="perf">INITIALISING</span></div>
