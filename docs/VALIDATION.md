@@ -77,3 +77,8 @@ The deliverable is an experimental prototype, not a production release or a sign
 
 - On a test video stepped frame by frame, a wand selection followed a moving ball for 150 frames, ignored a square of the same colour elsewhere, and found the ball again after the video jumped back (also selecting the square at that point).
 - Not checked: real footage, where subject and background colours overlap, and real-time playback on a GPU.
+
+## 0.7.2 capture checks (headless Chromium)
+
+- With a 20-second clip playing at 5 s, capture rewound to the start, recorded once through, stopped by itself, restored looping and downloaded the take.
+- This test browser reports MP4 support but has no working H.264 encoder, so the run above was made with the WebM fallback. MP4 output itself has not been checked here; it needs a real Chrome or Safari.

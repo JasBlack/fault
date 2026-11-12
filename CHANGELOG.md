@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.7.2 — capture records the whole clip as MP4
+
+- With a video loaded, **capture** rewinds to the first frame, records the clip once through and stops by itself at the end. Press **stop** to finish early. Animated pictures record one full loop. The built-in demos record until you press stop.
+- Recordings are MP4 (H.264) where the browser can make them: current Chrome, Edge and Safari. Firefox cannot, so it saves WebM and says so.
+- The finished take downloads automatically, named after the source, and stays listed in the capture panel.
+
 ## 0.7.1 — selections follow video
 
 - A clicked selection (smart select or wand) now follows its subject through video, animated pictures and the demos. FAULT learns the colours of the selected area on the frame you clicked, then each frame keeps the pixels with those colours near where the selection was a frame earlier. It runs on the GPU every frame.
