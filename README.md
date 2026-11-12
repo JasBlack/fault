@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.6.5
+Version 0.7.0
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -28,7 +28,7 @@ Double-click any slider to reset it. See the **[guide](docs/GUIDE.md)** for ever
 
 ## Run locally
 
-FAULT ships as a single self-contained file. Download [`FAULT.html`](FAULT.html) and open it in Chrome. It works offline.
+FAULT ships as a single self-contained file. (Only *smart select* on the mask tab needs the internet, to fetch its model the first time.) Download [`FAULT.html`](FAULT.html) and open it in Chrome. It works offline.
 
 ## Development
 
@@ -89,7 +89,7 @@ One-time setup:
 
 ## Status
 
-FAULT 0.6 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
+FAULT 0.7 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
 
 FAULT is an original work. It contains no code, presets, binaries or media from Timecode, GLAZE or other video tools, and no Code Painter media or processing code.
 

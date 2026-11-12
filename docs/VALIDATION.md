@@ -66,3 +66,9 @@ The deliverable is an experimental prototype, not a production release or a sign
 - All shader stages compile. The five tube types and the three tube looks render on the Orbit demo and a test illustration with no page errors; version 2 patches still load.
 - Compared against reference photographs while tuning. Texture disorder and mask structure are close; the references still have harder contrast and cooler whites than the defaults.
 - Not checked: frame rate on a real GPU (the tube stage adds about 35 texture reads per output pixel), and how fine masks look when the canvas is scaled down in console view.
+
+## 0.7.0 mask checks (headless Chromium)
+
+- Brightness key, picked-colour key, colour wand and smart select each limited the effect to the expected area on a test illustration, with no page errors.
+- Smart select was run with the real transformers.js 3.8.1 library and SlimSAM model files, served to the page from local copies; the live jsDelivr and Hugging Face downloads were not exercised from this environment.
+- Not checked: smart select speed on real hardware, Safari, and selection on video frames.

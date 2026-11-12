@@ -7,7 +7,7 @@ class FaultEngine {
     if(!gl||!gl.getExtension('EXT_color_buffer_float')) throw Error('FAULT needs WebGL 2 with floating-point rendering. Try current Chrome with graphics acceleration enabled.');
     this.sw=2048; this.sh=576; this.frame=0;
     gl.bindVertexArray(gl.createVertexArray());
-    this.inputA=this.texture();this.inputB=this.texture();
+    this.inputA=this.texture();this.inputB=this.texture();this.maskTex=this.texture();this.maskActive=0;
     this.raw=this.target(this.sw,this.sh);
     this.bent=[this.target(this.sw,this.sh),this.target(this.sw,this.sh)];
     this.locks=[this.target(1,this.sh),this.target(1,this.sh)];
@@ -41,6 +41,18 @@ float texturePhase(vec2 p){float line=floor(p.y*SH),zig=abs(fract(line/8.)-.5)*2
  return 2.*PI*(p.x*CYC/max(carrierScale,1.)+mix(mod(line,2.)*.5,mix(regular,walk+seam+fan,disorder),weave));}
 // How strongly the texture shows at a point: with disorder it comes and goes in patches.
 float texturePatch(vec2 p){return mix(1.,.15+1.25*smoothstep(.22,.62,noise2(vec2(p.x*2.2,floor(p.y*SH)*.009)+time*.012+11.)),disorder*.85);}
+// Selection: where the effect applies. A key taken from the source picture (a brightness band or a colour) and/or
+// a painted mask, both in picture space. With neither in use the whole picture is selected.
+uniform float keyMode,keyLow,keyHigh,keySoft,keyR,keyG,keyB,keyTol,maskPaint,maskInvert;
+float selection(sampler2D src,sampler2D paint,vec2 fit,vec2 p){
+ if(keyMode<.5&&maskPaint<.5)return 1.;
+ float sel=0.,s=max(keySoft,.002);
+ if(keyMode>.5){vec2 o=(p-.5)/fit+.5;vec3 c=vec3(0);if(all(greaterThanEqual(o,vec2(0)))&&all(lessThanEqual(o,vec2(1))))c=texture(src,o).rgb;
+  if(keyMode<1.5){float y=dot(c,vec3(.299,.587,.114));sel=smoothstep(keyLow-s,keyLow,y)*(1.-smoothstep(keyHigh,keyHigh+s,y));}
+  else sel=1.-smoothstep(keyTol,keyTol+s,distance(c,vec3(keyR,keyG,keyB))/1.732);}
+ if(maskPaint>.5)sel=max(sel,texture(paint,clamp(p,0.,1.)).r);
+ return mix(sel,1.-sel,maskInvert);
+}
 vec3 yiq(vec3 c){return vec3(dot(c,vec3(.299,.587,.114)),dot(c,vec3(.596,-.274,-.322)),dot(c,vec3(.211,-.523,.312)));}
 vec3 rgb(vec3 c){return vec3(c.x+.956*c.y+.621*c.z,c.x-.272*c.y-.647*c.z,c.x-1.106*c.y+1.703*c.z);}
 `;
@@ -155,7 +167,7 @@ void main(){
 }`);
     this.decoded=this.target(canvas.width,canvas.height);
     this.finish=this.program(pre+`
-uniform sampler2D decoded,previous,a;uniform vec2 fitA;
+uniform sampler2D decoded,previous,a,paint;uniform vec2 fitA;
 uniform float frameFeedback,zoom,rotation,scanlines,wet,bypass,contrast;
 void main(){
  vec3 c=texture(decoded,uv).rgb;vec2 p=uv-.5;float ang=rotation*.025;
@@ -165,10 +177,10 @@ void main(){
  c*=1.-scanlines*.24*(.5+.5*cos(uv.y*SH*2.*PI));
  vec2 orig=(uv-.5)/fitA+.5;vec3 clean=vec3(0);
  if(all(greaterThanEqual(orig,vec2(0)))&&all(lessThanEqual(orig,vec2(1))))clean=texture(a,orig).rgb;
- c=mix(clean,c,wet*(1.-bypass));frag=vec4(clamp(c,0.,1.),1);
+ c=mix(clean,c,wet*(1.-bypass)*selection(a,paint,fitA,uv));frag=vec4(clamp(c,0.,1.),1);
 }`);
     this.present=this.program(pre+`
-uniform sampler2D image;uniform vec2 outputSize;
+uniform sampler2D image,a,paint;uniform vec2 outputSize,fitA;
 uniform float sharpness,pixelSize,phosphor,wet,bypass,curve,bloom,grille,vignette,cool,shape;
 uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,picture,black;
 // ---- Cathode-ray tube model. Everything here works in linear light, the way the tube does. ----
@@ -235,12 +247,13 @@ vec3 sharpen(vec2 p){
  return clamp(c+clamp(c-n,vec3(-.18),vec3(.18))*sharpness,0.,1.);
 }
 void main(){
- float amount=wet*(1.-bypass);
+ float amount=wet*(1.-bypass),whole=amount;
  // Tube glass: the picture bulges, so its edges bow and the corners fall off the screen.
  vec2 g=uv*2.-1.;g.x*=mix(1.,4./3.,shape);float k=curve*amount*.11;
  // Spherical glass bows every edge. A cylindrical tube (Trinitron) curves left to right only.
  vec2 tube=mix(g*(1.+k*g.yx*g.yx),vec2(g.x*(1.+k*.45*g.x*g.x),g.y*(1.+k*.3*g.x*g.x)),cylinder)*(1.+curve*amount*.035);
  vec2 tuv=tube*.5+.5;vec2 edge=1.-smoothstep(vec2(1.)-8./outputSize,vec2(1.),abs(tube));float inside=curve*amount>0.||shape>0.?edge.x*edge.y:1.;
+ amount*=selection(a,paint,fitA,tuv);
  vec3 original=texture(image,tuv).rgb;
  vec3 crisp=mix(original,sharpen(tuv),amount);
  float size=max(pixelSize,3.);vec2 pixel=uv*outputSize;
@@ -263,7 +276,7 @@ void main(){
  c*=1.-vignette*amount*.6*pow(clamp(dot(g,g)*.5,0.,1.),1.6);
  if(crt>.5){ // rounded corners of the tube face
   vec2 r=abs(tube)-vec2(1.-.05);float corner=1.-smoothstep(.05-.006,.05,length(max(r,0.)));
-  c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,amount*min(curve*8.,1.));}
+  c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,whole*min(curve*8.,1.));}
  frag=vec4(clamp(c*inside,0.,1.),1);
 }`);
     this.clear();
@@ -271,19 +284,20 @@ void main(){
   texture(w=1,h=1,float=false){const g=this.gl,t=g.createTexture();g.bindTexture(g.TEXTURE_2D,t);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);g.texImage2D(g.TEXTURE_2D,0,float?g.RGBA16F:g.RGBA,w,h,0,g.RGBA,float?g.HALF_FLOAT:g.UNSIGNED_BYTE,null);return t;}
   target(w,h){const g=this.gl,texture=this.texture(w,h,true),fbo=g.createFramebuffer();g.bindFramebuffer(g.FRAMEBUFFER,fbo);g.framebufferTexture2D(g.FRAMEBUFFER,g.COLOR_ATTACHMENT0,g.TEXTURE_2D,texture,0);if(g.checkFramebufferStatus(g.FRAMEBUFFER)!==g.FRAMEBUFFER_COMPLETE)throw Error('Floating-point framebuffer unavailable.');return {texture,fbo,w,h};}
   program(fragment){const g=this.gl,p=g.createProgram();for(const [type,src]of [[g.VERTEX_SHADER,`#version 300 es\nprecision highp float;out vec2 uv;void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);uv=p;gl_Position=vec4(p*2.-1.,0,1);}`],[g.FRAGMENT_SHADER,fragment]]){const s=g.createShader(type);g.shaderSource(s,src);g.compileShader(s);if(!g.getShaderParameter(s,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(s));g.attachShader(p,s);g.deleteShader(s);}g.linkProgram(p);if(!g.getProgramParameter(p,g.LINK_STATUS))throw Error(g.getProgramInfoLog(p));const loc={};for(let i=0;i<g.getProgramParameter(p,g.ACTIVE_UNIFORMS);i++){const n=g.getActiveUniform(p,i).name;loc[n]=g.getUniformLocation(p,n);}return {p,loc};}
+  setMask(canvas){if(canvas)this.upload(this.maskTex,canvas);this.maskActive=canvas?1:0;}
   upload(texture,source){const g=this.gl;g.bindTexture(g.TEXTURE_2D,texture);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,true);g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,source);}
   pass(program,target,textures,values){const g=this.gl;g.bindFramebuffer(g.FRAMEBUFFER,target?target.fbo:null);g.viewport(0,0,target?target.w:this.canvas.width,target?target.h:this.canvas.height);g.useProgram(program.p);let unit=0;for(const [name,tex]of Object.entries(textures)){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex);if(program.loc[name]!=null)g.uniform1i(program.loc[name],unit);unit++;}for(const [name,v]of Object.entries(values)){const l=program.loc[name];if(l==null)continue;if(Array.isArray(v))g.uniform2fv(l,v);else g.uniform1f(l,v);}g.drawArrays(g.TRIANGLES,0,3);}
   clear(){const g=this.gl;g.clearColor(0,0,0,1);for(const t of [...this.bent,...this.frames,...this.locks]){g.bindFramebuffer(g.FRAMEBUFFER,t.fbo);g.clear(g.COLOR_BUFFER_BIT);}this.frame=0;}
   render(a,b,values,time,dt){
     const aspect=16/9+(4/3-16/9)*(values.shape||0),fit=s=>{const w=s.videoWidth||s.naturalWidth||s.width,h=s.videoHeight||s.naturalHeight||s.height,ratio=w/h/aspect;return ratio>1?[1,1/ratio]:[ratio,1];};
     this.upload(this.inputA,a);this.upload(this.inputB,b);
-    const v={...values,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
+    const v={...values,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
     this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB},v);
     this.pass(this.bend,this.bent[i],{raw:this.raw.texture,previous:this.bent[j].texture},v);
     this.pass(this.receiver,this.locks[i],{signal:this.bent[i].texture,previous:this.locks[j].texture},v);
     this.pass(this.decode,this.decoded,{signal:this.bent[i].texture,locks:this.locks[i].texture,a:this.inputA},v);
-    this.pass(this.finish,this.frames[i],{decoded:this.decoded.texture,previous:this.frames[j].texture,a:this.inputA},v);
-    this.pass(this.present,null,{image:this.frames[i].texture},v);this.frame++;
+    this.pass(this.finish,this.frames[i],{decoded:this.decoded.texture,previous:this.frames[j].texture,a:this.inputA,paint:this.maskTex},v);
+    this.pass(this.present,null,{image:this.frames[i].texture,a:this.inputA,paint:this.maskTex},v);this.frame++;
   }
 }
 window.FaultEngine=FaultEngine;

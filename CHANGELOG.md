@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.7.0 — effect on part of the picture
+
+A new **mask** tab limits the effect to a selection; everywhere else shows the clean source.
+
+- **Key from the picture:** select a brightness band, or a colour picked from the stage with *pick key colour*. The key is computed live from the source, so it follows moving video.
+- **Smart select:** click an object to select it, using a small Segment Anything model (SlimSAM) that runs in the browser. Nothing is uploaded. The model and its runtime (about 36 MB) download on first use from jsDelivr and Hugging Face, so the first use needs an internet connection; if they cannot load, FAULT falls back to the wand.
+- **Colour wand:** click to select the connected area of similar colour. Works offline.
+- Click adds to the selection, Alt-click removes. *Invert*, *Feather*, *clear selection* and *mask off* are in the tab. Clicked areas stay fixed on the screen and are cleared when a new source loads; the selection is kept when you change look.
+- The page's content security policy now allows those two hosts, for smart select only.
+
 ## 0.6.5 — full-screen picture
 
 - Looks and tube types no longer curve the screen, so the picture fills the frame edge to edge with square corners. *Screen curve* on the tube tab brings back the bulged glass, rounded corners and black surround.
