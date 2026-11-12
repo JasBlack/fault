@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.6.4 — capture
+
+- The record button is now **capture**. With a still picture loaded it saves a 1080p PNG immediately; with a video, an animated picture or a built-in demo it records as before.
+- Saved pictures always use your exact tube settings, not the coarser on-screen preview.
+- Every look now starts in 16:9. *Screen shape* on the tube tab still switches to a 4:3 tube, and choosing a tube type no longer changes the shape.
+
 ## 0.6.3 — tidier panels
 
 - Removed the 1 to 4 number badges from the left panel titles.

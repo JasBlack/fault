@@ -31,7 +31,8 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 - Space pauses/resumes source playback and oscillators. Feedback processing can still settle while paused.
 - B toggles clean bypass. C clears history. Keyboard shortcuts are ignored while editing controls.
 - Seek works for source A videos. Loaded sources loop and their audio is muted.
-- Record captures the processed canvas at 1920 × 1080, with a 30 fps target. **Video only: audio is not captured.** Actual frame rate depends on rendering speed.
+- **Capture** does the right thing for the source. With a still picture loaded it saves one 1920 × 1080 PNG immediately. With a video, an animated picture or a built-in demo it records until you press **stop**.
+- Recording captures the processed canvas at 1920 × 1080, with a 30 fps target. **Video only: audio is not captured.** Actual frame rate depends on rendering speed.
 - Stop recording, then click the take link to save it. WebM is preferred where supported, with MP4 as a fallback. No guarantee of ProRes or frame-accurate offline export.
 - Each take is limited to 10 minutes to bound memory use. Download takes before closing; they are not stored persistently.
 - Save patch downloads a JSON settings file. Load patch restores it. Media is not embedded in patches. Built-in patch changes discard unsaved slider changes.
