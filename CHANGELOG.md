@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.3 — record live
+
+- New **record live** button in the capture panel: records what is on screen from that moment until you press stop, without rewinding. Use it to capture yourself moving the controls.
+- The main **capture** button is unchanged: a picture saves at once, a clip records from start to end. Every finished capture downloads automatically.
+
 ## 0.7.2 — capture records the whole clip as MP4
 
 - With a video loaded, **capture** rewinds to the first frame, records the clip once through and stops by itself at the end. Press **stop** to finish early. Animated pictures record one full loop. The built-in demos record until you press stop.

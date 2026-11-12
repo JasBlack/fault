@@ -33,6 +33,7 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 - B toggles clean bypass. C clears history. Keyboard shortcuts are ignored while editing controls.
 - Seek works for source A videos. Loaded sources loop and their audio is muted.
 - **Capture** does the right thing for the source. With a still picture loaded it saves one 1920 × 1080 PNG immediately. With a video it rewinds to the first frame, records the clip once through and stops at the end; an animated picture records one loop; a built-in demo records until you press **stop**. The take downloads automatically as MP4 (WebM in Firefox, which cannot record MP4).
+- **record live** (capture panel) records from now until you press stop, without rewinding the clip, so you can perform the controls. It also downloads when you stop.
 - Recording captures the processed canvas at 1920 × 1080, with a 30 fps target. **Video only: audio is not captured.** Actual frame rate depends on rendering speed.
 - Stop recording, then click the take link to save it. WebM is preferred where supported, with MP4 as a fallback. No guarantee of ProRes or frame-accurate offline export.
 - Each take is limited to 10 minutes to bound memory use. Download takes before closing; they are not stored persistently.
