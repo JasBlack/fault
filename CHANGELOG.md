@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.5.0 — relief, carrier texture and the tube
+
+Built from a study of 47 photographs of bent video on CRT screens.
+
+- **Relief** (bend tab): the picture through a coupling capacitor that is too small, then amplified until it clips. Flat areas settle to grey while every edge becomes a bright bevel with a shadow trailing behind it, so shapes look inflated or pressed in metal. Controls: Relief, Flatten to grey, Edge gain, Droop length, Line streaks.
+- **Carrier texture** (new tube tab): the colour carrier shows in the brightness as a dot pattern. Weave turns the checkerboard into a drifting herringbone that bends around the picture. Chroma smear trails colour to the right of shapes.
+- **Tube** (new tube tab): 4:3 screen shape, screen curve with a black surround, unbroken vertical stripe mask, glow, dark corners and a cool tint.
+- Three new looks: **Relief tube**, **Silver emboss** and **Herringbone**.
+- Line bending now defaults to off, so the picture no longer wobbles unless you ask for it. Lost lock keeps its tearing.
+- Patch format is version 3. Version 1 and 2 patches still load; controls they do not mention take their defaults.
+- All new controls default to off, so the existing looks are otherwise unchanged.
+
 ## 0.4.2 — icon and link preview
 
 - New FAULT icon (a torn signal wave, green with a violet ghost) for browser tabs, bookmarks and home screens: SVG, 32 px PNG, .ico, Apple touch icon, 192/512 px manifest icons.

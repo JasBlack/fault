@@ -53,3 +53,10 @@ The deliverable is an experimental prototype, not a production release or a sign
 - Loaded: WebM (VP9), MP4 and MOV (H.264), MKV with no MIME type, animated GIF and WebP (frames advance), SVG, a 6000 × 3000 JPEG.
 - ProRes .mov and a corrupt .mov show the codec message and keep the current source.
 - Not checked: HEVC .mov, HEIC in Safari, real Finder drag-and-drop on macOS.
+
+## 0.5.0 relief and tube checks (headless Chromium, software WebGL)
+
+- All shader stages compile and the three new looks render on the Orbit demo and on a flat-colour test illustration, with no page errors.
+- Compared renders side by side with reference photographs while tuning: embossed bevels over grey, herringbone carrier texture, stripe mask, curved 4:3 tube with black surround.
+- Bypass still shows the clean source. With every new control at its default the earlier looks render as before, apart from line bending now defaulting to off.
+- Not checked: frame rate on a real GPU. The relief and tube stages add texture reads (about 80 per signal sample with relief on), so slower integrated GPUs may drop below 30 fps.

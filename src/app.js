@@ -3,15 +3,18 @@ const $=s=>document.querySelector(s);
 const groups={
  bend:[['Resonant bend','Tune into edges. Push the gain until the picture rings.',[
  ['frequency','Frequency',.25,2,.001,1.02,'× carrier'],['resonance','Resonance',0,1,.001,.66,''],['drive','Drive',0,12,.01,2.8,''],['secondary','Second band',0,1,.001,.25,''],['fold','Signal fold',0,1,.001,.3,'']]],
+ ['Relief','Lose the slow brightness and keep the edges: flat areas go grey, outlines emboss.',[['relief','Relief',0,1,.001,0,''],['flatten','Flatten to grey',0,1,.001,.65,''],['reliefGain','Edge gain',.5,8,.01,3,''],['droop','Droop length',0,1,.001,.45,''],['streak','Line streaks',0,2,.01,0,'']]],
  ['Voltage window','Choose which signal levels enter the bend.',[['threshold','Lower threshold',-.5,1.2,.01,-.1,'V'],['windowWidth','Window width',.1,2,.01,1.5,'V']]],
  ['Signal memory','A delayed waveform from the previous frame.',[['feedback','Feedback',0,.9,.001,.15,''],['delay','Sample offset',-80,80,.1,7,'px']]]],
  sync:[['Dirty mixer','Sum two signals with independent timing.',[['mixB','Interferer level',0,1,.001,0,''],['mixDrift','Interferer drift',-3,3,.01,.6,'']]],
  ['Receiver lock','Release the lock and let damaged sync move the raster.',[['safety','Protect sync',0,1,.001,1,''],['lock','Hard lock',0,1,.001,1,''],['drift','Receiver drift',0,3,.01,.3,'']]],
- ['Time base','Bend individual lines or roll the whole field.',[['tear','Line bending',0,2,.001,.12,''],['roll','Vertical roll',-1,1,.001,0,'']]]],
+ ['Time base','Bend individual lines or roll the whole field.',[['tear','Line bending',0,2,.001,0,''],['roll','Vertical roll',-1,1,.001,0,'']]]],
  output:[['Crystal display','Set RGB light size independently of the circuit bend.',[['pixelSize','RGB cell size',3,24,.25,6,'px'],['phosphor','RGB light strength',0,1,.01,.25,''],['sharpness','Edge sharpness',0,2,.01,.65,''],['detail','Source detail',0,2,.01,.8,'']]],
  ['Frame feedback','Recirculate the decoded picture through a transform.',[['frameFeedback','Return',0,.95,.001,0,''],['zoom','Zoom',-1,1,.001,.3,''],['rotation','Rotation',-1,1,.001,.2,'']]],
  ['Picture','Grade before encoding and after decoding.',[['sourceGain','Input gain',.2,2,.01,1,''],['tint','Colour phase',-3.14,3.14,.01,0,'rad'],['saturation','Chroma',0,3,.01,1.2,''],['contrast','Contrast',.5,2,.01,1,'']]],
- ['Final stage','Keep the screen texture as subtle as you like.',[['scanlines','Scanlines',0,1,.01,.06,''],['wet','Dry / wet',0,1,.001,1,'']]]]
+ ['Final stage','Keep the screen texture as subtle as you like.',[['scanlines','Scanlines',0,1,.01,.06,''],['wet','Dry / wet',0,1,.001,1,'']]]],
+ tube:[['Carrier texture','Let the colour carrier show as a dot pattern, and let it wander.',[['leak','Carrier texture',0,2,.01,0,''],['weave','Weave',0,1,.001,0,''],['carrierScale','Carrier size',1,5,.01,1,'×'],['smear','Chroma smear',0,1,.001,0,'']]],
+ ['Tube','The glass in front of the signal.',[['shape','Screen shape 16:9 → 4:3',0,1,1,0,''],['curve','Screen curve',0,1,.001,0,''],['grille','Stripe mask',0,1,.001,0,''],['bloom','Glow',0,1,.001,0,''],['vignette','Dark corners',0,1,.001,0,''],['cool','Cool tint',0,1,.001,0,'']]]]
 };
 const definitions=Object.values(groups).flatMap(gs=>gs.flatMap(g=>g[2]));
 const defaults=Object.fromEntries(definitions.map(d=>[d[0],d[5]]));
@@ -22,7 +25,10 @@ const patches=[
  {name:'Edge bloom',tone:'#fba0dc',values:{frequency:.64,resonance:.9,drive:5.4,fold:.12,secondary:.1,tint:.8,feedback:.25,delay:14,saturation:1.9}},
  {name:'Voltage fold',tone:'#aa8bff',values:{frequency:1.12,resonance:.87,drive:8.6,fold:.85,secondary:.65,threshold:.05,tint:1.7,saturation:2.3}},
  {name:'Lost lock',tone:'#ff875a',values:{frequency:.75,drive:2.7,resonance:.8,fold:.3,safety:0,lock:0,drift:2.1,tear:.7,mixB:.35,mixDrift:1.1,feedback:.3}},
- {name:'Afterimage',tone:'#7fd7e9',values:{drive:1.2,fold:.12,feedback:.1,frameFeedback:.86,zoom:.75,rotation:.55,saturation:1.6,tear:.06}}
+ {name:'Afterimage',tone:'#7fd7e9',values:{drive:1.2,fold:.12,feedback:.1,frameFeedback:.86,zoom:.75,rotation:.55,saturation:1.6}},
+ {name:'Relief tube',tone:'#7fd7e9',values:{shape:1,relief:1,flatten:1,reliefGain:6,droop:.45,streak:.3,frequency:.42,resonance:.55,drive:.3,secondary:.2,fold:0,feedback:0,leak:.6,weave:.8,carrierScale:3,smear:.35,saturation:1.7,contrast:1.25,detail:0,sharpness:1,pixelSize:4,phosphor:.35,grille:1,scanlines:.3,curve:.5,bloom:.35,vignette:.55,cool:.7}},
+ {name:'Silver emboss',tone:'#e4e4e1',values:{shape:1,relief:1,flatten:.85,reliefGain:8,droop:.55,streak:.5,frequency:.5,resonance:.7,drive:.5,secondary:.3,fold:0,feedback:0,leak:.5,weave:.6,carrierScale:2.6,smear:.5,saturation:2.3,contrast:1.5,detail:0,sharpness:1.2,pixelSize:4,phosphor:.35,grille:1,scanlines:.3,curve:.55,bloom:.5,vignette:.5,cool:.3}},
+ {name:'Herringbone',tone:'#fba0dc',values:{shape:1,relief:.8,flatten:1,reliefGain:3,droop:.35,streak:.2,frequency:1,resonance:.8,drive:.4,secondary:.1,fold:0,feedback:0,leak:1.8,weave:1,carrierScale:3.6,smear:.25,saturation:1.4,contrast:1.3,detail:0,sharpness:.8,pixelSize:5,phosphor:.3,grille:1,scanlines:.25,curve:.3,bloom:.3,vignette:.35,cool:.1}}
 ];
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),4500);}
 function valueLabel(d){return state[d[0]].toFixed(d[4]>=.1?1:2)+(d[6]?' '+d[6]:'');}
@@ -65,8 +71,8 @@ addEventListener('dragover',e=>{e.preventDefault();if(!hasFiles(e)){e.dataTransf
 addEventListener('dragleave',e=>{if(hasFiles(e)&&--dragDepth<=0)endDrag();});
 addEventListener('drop',e=>{e.preventDefault();const toB=!!e.target.closest?.('.source-secondary');endDrag();const files=[...(e.dataTransfer?.files||[])];if(!files.length)return;const patch=files.find(f=>/\.json$/i.test(f.name)||f.type==='application/json'),media=files.filter(f=>f!==patch);if(patch)loadPatch(patch);if(toB){loadMedia(media[0],'B');return;}loadMedia(media[0],'A');if(media[1])loadMedia(media[1],'B');});
 function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}
-$('#savePatch').onclick=()=>download(new Blob([JSON.stringify({app:'FAULT',version:2,name:$('#patchName').textContent,parameters:state},null,2)],{type:'application/json'}),'fault-patch.json');
-$('#loadPatch').onclick=()=>$('#patchFile').click();async function loadPatch(f){if(!f)return;try{if(f.size>100000)throw Error();const p=JSON.parse(await f.text());if(p.app!=='FAULT'||![1,2].includes(p.version)||!p.parameters)throw Error();const next={...defaults,bypass:0};for(const d of definitions){const v=p.parameters[d[0]]??(p.version===1?d[5]:undefined);if(typeof v!=='number'||!Number.isFinite(v))throw Error();next[d[0]]=Math.max(d[2],Math.min(d[3],v));}state=next;renderControls();$('#bypass').classList.remove('on');$('#bypass').setAttribute('aria-pressed','false');$('#patchName').textContent=String(p.name||'IMPORTED PATCH').slice(0,40);document.querySelectorAll('.preset').forEach(b=>b.classList.remove('selected'));engine?.clear();toast('Patch loaded');}catch{toast('Not a valid FAULT patch. Your settings are unchanged.');}}
+$('#savePatch').onclick=()=>download(new Blob([JSON.stringify({app:'FAULT',version:3,name:$('#patchName').textContent,parameters:state},null,2)],{type:'application/json'}),'fault-patch.json');
+$('#loadPatch').onclick=()=>$('#patchFile').click();async function loadPatch(f){if(!f)return;try{if(f.size>100000)throw Error();const p=JSON.parse(await f.text());if(p.app!=='FAULT'||![1,2,3].includes(p.version)||!p.parameters)throw Error();const next={...defaults,bypass:0};for(const d of definitions){const v=p.parameters[d[0]]??d[5];if(typeof v!=='number'||!Number.isFinite(v))throw Error();next[d[0]]=Math.max(d[2],Math.min(d[3],v));}state=next;renderControls();$('#bypass').classList.remove('on');$('#bypass').setAttribute('aria-pressed','false');$('#patchName').textContent=String(p.name||'IMPORTED PATCH').slice(0,40);document.querySelectorAll('.preset').forEach(b=>b.classList.remove('selected'));engine?.clear();toast('Patch loaded');}catch{toast('Not a valid FAULT patch. Your settings are unchanged.');}}
 $('#patchFile').onchange=e=>{const f=e.target.files[0];e.target.value='';loadPatch(f);};
 function formatTime(t){if(!Number.isFinite(t))return '00:00';return String(Math.floor(t/60)).padStart(2,'0')+':'+String(Math.floor(t%60)).padStart(2,'0');}
 function stopRecord(){if(recorder?.state==='recording')recorder.stop();}

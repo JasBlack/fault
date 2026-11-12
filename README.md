@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.4.2
+Version 0.5.0
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -13,7 +13,7 @@ FAULT encodes a picture or video into a simplified composite signal, then bends 
 ## Quick start
 
 1. Open [fault.jas.black](https://fault.jas.black) in a current desktop Chrome. WebGL 2 with floating-point rendering is required.
-2. The built-in Orbit source is already running. Try the **hot circuit**, **voltage fold** and **lost lock** looks.
+2. The built-in Orbit source is already running. Try the **hot circuit**, **relief tube** and **herringbone** looks.
 3. Click **open picture / video**, or drop a file anywhere on the page. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
 4. Press **record** to capture 1080p video (no audio). Use **save patch** to keep your settings.
 
@@ -89,7 +89,7 @@ One-time setup:
 
 ## Status
 
-FAULT 0.4 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
+FAULT 0.5 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
 
 FAULT is an original work. It contains no code, presets, binaries or media from Timecode, GLAZE or other video tools, and no Code Painter media or processing code.
 
