@@ -110,7 +110,7 @@ void main(){
 }`);
     this.decode=this.program(pre+`
 uniform sampler2D signal,locks,a;uniform vec2 fitA;
-uniform float tear,roll,tint,saturation,detail,sourceGain,mixB,leak,smear,streak,relief;
+uniform float tear,roll,tint,saturation,detail,sourceGain,mixB,leak,smear,streak,relief,comb;
 float sampleSignal(vec2 p){return texture(signal,vec2(clamp(p.x,.12,.999),fract(p.y))).r;}
 float sourceLuma(vec2 p){p=(p-.5)/fitA+.5;if(any(lessThan(p,vec2(0)))||any(greaterThan(p,vec2(1))))return 0.;return dot(texture(a,p).rgb,vec3(.299,.587,.114))*sourceGain;}
 void main(){
@@ -124,6 +124,10 @@ void main(){
   lum+=s*w;ii+=s*cos(phase)*w;qq+=s*sin(phase)*w;norm+=w;
  }
  lum/=norm;float cn=norm;
+ // Comb filter: fine brightness detail lands on the colour carrier and decodes as false colour. The carrier flips
+ // phase on the next line while the detail does not, so averaging the two lines cancels it and keeps real colour.
+ if(comb>0.){float i2=0.,q2=0.;for(int k=-12;k<=12;k++){float n=float(k);vec2 q=vec2(p.x+n/SW,y+1./SH);float w=exp(-n*n/28.),s=sampleSignal(q),phase=carrier(q)+tint;i2+=s*cos(phase)*w;q2+=s*sin(phase)*w;}
+  ii=mix(ii,.5*(ii+i2),comb);qq=mix(qq,.5*(qq+q2),comb);}
  // Chroma smear: a slow colour channel that keeps trailing to the right of what caused it.
  if(smear>0.)for(int k=1;k<=16;k++){
   float n=-12.-float(k)*3.;vec2 q=p+vec2(n/SW,0);float w=exp(-float(k)/(1.5+7.*smear))*smear*3.;float s=sampleSignal(q);float phase=carrier(vec2(q.x,y))+tint;

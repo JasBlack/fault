@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.2 — clean looks
+
+- **Colour cleanup (comb filter)** on the display tab: removes the rainbow speckle that fine black-and-white detail picks up in composite video, by averaging each line's colour with the next (the carrier flips phase between lines, so false colour cancels and real colour stays). Vertical colour detail is slightly softened, as on sets with a comb filter.
+- Two new looks with strong blacks and little colour noise: **Clean tube** (a sharp PVM picture with a light mask and no bending artefacts) and **Clean emboss** (the relief bevels without the carrier texture).
+
 ## 0.6.1 — tube model checked against published figures
 
 - **Phosphor colour:** the tube now uses the SMPTE-C (P22) phosphor primaries, converted for an sRGB screen, in place of a hand-picked tint. *White point* moves between D65 (studio monitors) and D93 (x 0.283, y 0.298), the cooler white Japanese consumer sets were aligned to.
