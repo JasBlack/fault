@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0 — cathode-ray tube model and tube types
+
+- **Tube model** (tube tab, *Cathode-ray tube* on): the screen stage now works in linear light the way a tube does. The signal drives the guns through a 2.4 power law; each scanline is a Gaussian electron spot that swells with brightness, so bright lines merge and dim lines stay thin; the mask (aperture-grille stripes, staggered slots or dot triads) is applied to light and averaged over each output pixel; light scatters in the faceplate as bloom and halation; phosphor colour and white point (6500K to 9300K) are applied; highlights roll off without shifting hue.
+- **Tube types**: Sony PVM, Trinitron TV, Slot-mask TV, Dot-mask set, Mono monitor and Flat. Each is a starting point modelled on the general character of that kind of set, not a measurement of a specific unit.
+- New controls: Picture (contrast), Black level cut, Scanline beam, Visible lines, Focus, Phosphor colour, Monochrome tube, Cylindrical tube, Halation, Glass reflection. Mask pitch and strength moved from the display tab to the tube tab.
+- **Disorder** (carrier texture): the herringbone no longer repeats on a fixed zigzag. Its arms change length and lean, it drifts differently across the width, jumps at the occasional seam, comes and goes in patches, and hardens toward on/off dots.
+- Relief tube, Silver emboss and Herringbone now use the tube model (Trinitron TV, Sony PVM and Slot-mask TV).
+
 ## 0.5.0 — relief, carrier texture and the tube
 
 Built from a study of 47 photographs of bent video on CRT screens.

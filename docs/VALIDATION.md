@@ -60,3 +60,9 @@ The deliverable is an experimental prototype, not a production release or a sign
 - Compared renders side by side with reference photographs while tuning: embossed bevels over grey, herringbone carrier texture, stripe mask, curved 4:3 tube with black surround.
 - Bypass still shows the clean source. With every new control at its default the earlier looks render as before, apart from line bending now defaulting to off.
 - Not checked: frame rate on a real GPU. The relief and tube stages add texture reads (about 80 per signal sample with relief on), so slower integrated GPUs may drop below 30 fps.
+
+## 0.6.0 tube model checks (headless Chromium, software WebGL)
+
+- All shader stages compile. The five tube types and the three tube looks render on the Orbit demo and a test illustration with no page errors; version 2 patches still load.
+- Compared against reference photographs while tuning. Texture disorder and mask structure are close; the references still have harder contrast and cooler whites than the defaults.
+- Not checked: frame rate on a real GPU (the tube stage adds about 35 texture reads per output pixel), and how fine masks look when the canvas is scaled down in console view.

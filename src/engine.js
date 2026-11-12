@@ -20,11 +20,27 @@ const float PI=3.14159265359;
 uniform float carrierScale,weave;
 const float SW=2048.;const float SH=576.;const float CYC=377.;
 float carrier(vec2 p){return 2.*PI*(p.x*CYC+mod(floor(p.y*SH),2.)*.5);}
-// Carrier texture: a coarser copy of the carrier pattern that shows in the brightness. Its line phase alternates
-// (a checkerboard) or, with weave, zigzags and drifts slowly, which gives the herringbone of a loose subcarrier.
-float texturePhase(vec2 p){float line=floor(p.y*SH),zig=abs(fract(line/8.)-.5)*2.;
- return 2.*PI*(p.x*CYC/max(carrierScale,1.)+mix(mod(line,2.)*.5,zig*.85+.4*sin(line*.043+time*.25)+.15*sin(line*.31-time*.4),weave));}
 float hash(float n){return fract(sin(n*127.1)*43758.5453);}
+float noise1(float x){float i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(hash(i),hash(i+1.),f);}
+float noise2(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);float n=i.x+i.y*57.;return mix(mix(hash(n),hash(n+1.),f.x),mix(hash(n+57.),hash(n+58.),f.x),f.y);}
+// Carrier texture: a coarser copy of the carrier pattern that shows in the brightness. Its line phase alternates
+// (a checkerboard) or, with weave, wanders. A regular weave is a fixed zigzag. With disorder the phase takes an
+// uneven walk down the screen instead (straight runs, then leaning one way or the other for a while), jumps at the
+// occasional seam, and drifts differently across the width so the columns fan and bend, as a free-running
+// oscillator does.
+uniform float disorder;
+float texturePhase(vec2 p){float line=floor(p.y*SH),zig=abs(fract(line/8.)-.5)*2.;
+ float regular=zig*.85+.4*sin(line*.043+time*.25)+.15*sin(line*.31-time*.4);
+ float l=floor(line/2.)*2.;
+ // Chevrons whose arm length and lean keep changing, on top of a slow drift.
+ float arm=l/19.+1.5*noise1(l*.021+time*.03)+.45*noise1(l*.07+5.1);
+ float lean=.12+.62*noise1(l*.015+13.+time*.02);
+ float walk=lean*(abs(fract(arm)-.5)*2.-.5)+.7*(noise1(l*.009+time*.03+2.)-.5);
+ float seam=.5*floor(2.2*noise1(l*.012+time*.015+41.));
+ float fan=1.2*(noise2(vec2(p.x*2.2,l*.005)+time*.012)-.5)+.3*(noise2(vec2(p.x*6.,l*.014)+3.7)-.5);
+ return 2.*PI*(p.x*CYC/max(carrierScale,1.)+mix(mod(line,2.)*.5,mix(regular,walk+seam+fan,disorder),weave));}
+// How strongly the texture shows at a point: with disorder it comes and goes in patches.
+float texturePatch(vec2 p){return mix(1.,.15+1.25*smoothstep(.22,.62,noise2(vec2(p.x*2.2,floor(p.y*SH)*.009)+time*.012+11.)),disorder*.85);}
 vec3 yiq(vec3 c){return vec3(dot(c,vec3(.299,.587,.114)),dot(c,vec3(.596,-.274,-.322)),dot(c,vec3(.211,-.523,.312)));}
 vec3 rgb(vec3 c){return vec3(c.x+.956*c.y+.621*c.z,c.x-.272*c.y-.647*c.z,c.x-1.106*c.y+1.703*c.z);}
 `;
@@ -116,7 +132,9 @@ void main(){
  // Carrier texture: the receiver stops separating colour from brightness, so the carrier shows as a dot pattern
  // whose phase is pushed around by the picture itself.
  // The pattern is pushed around by the picture (brighter areas shift its phase) and is stronger where it is bright.
- if(leak>0.)lum+=leak*(.03+.13*clamp(lum,0.,1.))*cos(texturePhase(p)+weave*7.*lum);
+ if(leak>0.){float wave=cos(texturePhase(p)+weave*(7.-2.5*disorder)*lum);
+  // Disorder also hardens the wave toward the on/off dots of a clipped carrier.
+  wave=mix(wave,clamp(wave*2.4,-1.,1.),disorder);lum+=leak*(.03+.13*clamp(lum,0.,1.))*wave*texturePatch(p);}
  // Line streaks: with no black-level clamp, a line carrying more signal sits darker across its whole width.
  lum-=streak*(texture(locks,vec2(.5,y)).g-.5)*.9;
  vec3 c=vec3((lum-.075)/.85,ii/cn*2./.45*saturation,qq/cn*2./.45*saturation);
@@ -148,6 +166,61 @@ void main(){
     this.present=this.program(pre+`
 uniform sampler2D image;uniform vec2 outputSize;
 uniform float sharpness,pixelSize,phosphor,wet,bypass,curve,bloom,grille,vignette,cool,shape;
+uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,picture,black;
+// ---- Cathode-ray tube model. Everything here works in linear light, the way the tube does. ----
+// The gun's light output rises as roughly the 2.4th power of the signal voltage.
+// The set's contrast ("picture") and brightness knobs act on the voltage first: turned up, darks fall below
+// cut-off and go fully black while whites overdrive the guns.
+vec3 emission(vec3 v){v=(v-black)*picture/(1.-black);return pow(clamp(v,0.,1.35),vec3(2.4));}
+// One scanline's drive at a point. The video amplifier has limited bandwidth, so the beam cannot change
+// instantly along the line: lower focus spreads it sideways.
+vec3 drive(vec2 p){float w=(1.-focus)*2.6/outputSize.x;
+ return emission((texture(image,p-vec2(w,0)).rgb+2.*texture(image,p).rgb+texture(image,p+vec2(w,0)).rgb)*.25);}
+// The raster: each scanline is a sweep of a roughly Gaussian electron spot. The spot grows with beam current,
+// so bright lines swell and merge while dim lines stay thin with dark gaps between them.
+vec3 raster(vec2 p){
+ float y=p.y*lines-.5,first=floor(y);vec3 sum=vec3(0);
+ for(int k=0;k<2;k++){float line=first+float(k),d=y-line;vec3 e=drive(vec2(p.x,(line+.5)/lines));
+  vec3 spot=mix(vec3(.21),vec3(.47),sqrt(e));sum+=e*exp(-d*d/(2.*spot*spot))/(spot*2.5066);}
+ return mix(drive(p),sum,beam);
+}
+// The mask in front of the phosphor decides which colour each spot of the screen can emit.
+vec3 maskAt(vec2 px){
+ if(mask<.5)return vec3(1);
+ vec2 q=px/max(pixelSize,3.);
+ if(mask>2.5){ // dot triads (shadow mask): rows of round phosphor dots, every other row shifted
+  q.y/=.577;q.x+=mod(floor(q.y),2.)*.5;float i=mod(floor(q.x*3.),3.);
+  float d=length(vec2(fract(q.x*3.)-.5,(fract(q.y)-.5)*.9)),a=1.-smoothstep(.30,.5,d);
+  return a*vec3(float(i<.5),float(abs(i-1.)<.5),float(i>1.5))*1.35;}
+ float i=mod(floor(q.x*3.),3.),a=1.-smoothstep(.27,.5,abs(fract(q.x*3.)-.5));
+ if(mask>1.5){ // slot mask: stripes broken into short slots, staggered between neighbouring triads
+  float v=fract(q.y/1.6+mod(floor(q.x),2.)*.5);a*=smoothstep(0.,.1,v)*smoothstep(1.,.9,v)*1.12;}
+ return a*vec3(float(i<.5),float(abs(i-1.)<.5),float(i>1.5)); // else aperture grille: unbroken stripes
+}
+// Averaged over the output pixel, so a fine mask stays even instead of shimmering.
+vec3 maskArea(vec2 px){vec3 m=vec3(0);for(int i=0;i<4;i++)for(int j=0;j<2;j++)m+=maskAt(px+vec2((float(i)+.5)/4.-.5,(float(j)+.5)/2.-.5));return m/8.;}
+vec3 cathode(vec2 g,vec2 tube,vec2 tuv,vec2 pixel){
+ vec3 light=raster(tuv);
+ // Mask: transmits about a third of the beam, so the set drives the guns harder to make up for it.
+ vec3 lit=light*maskArea(pixel)*3.5;
+ light=mix(light,lit,phosphor);
+ // Halation and bloom: light scatters inside the thick faceplate glass and comes back as a soft halo.
+ vec3 near=vec3(0),far=vec3(0);
+ for(int k=0;k<20;k++){float a=float(k)*2.39996,r=(3.+float(k)*float(k)*.19)/outputSize.y;
+  vec3 t=emission(texture(image,tuv+vec2(cos(a)*r*outputSize.y/outputSize.x,sin(a)*r)).rgb);if(k<9)near+=t;far+=t;}
+ light+=near/9.*bloom*.07+far/20.*halation*.04;
+ // Phosphor colour: saturated primaries, and the white point the set was aligned to (studio 6500K to consumer 9300K).
+ float y=dot(light,vec3(.2126,.7152,.0722));
+ light=mix(vec3(y),light,1.+.3*vivid);
+ light*=mix(vec3(1),vec3(.72,.97,1.30),cool);
+ light=mix(light,y*vec3(.84,.97,1.12),mono);
+ // Glass: the unlit screen is grey, not black, and reflects a little of the room.
+ light+=glass*(vec3(.006,.0065,.008)+.012*smoothstep(1.2,-.6,g.x+g.y*1.3)*vec3(.9,.95,1.));
+ light*=1.-vignette*.6*pow(clamp(dot(g,g)*.5,0.,1.),1.6);
+ // Shoulder that keeps hue: phosphor saturates gradually, it does not clip one channel at a time.
+ float m=max(light.r,max(light.g,light.b));if(m>.75)light*=(.75+.25*(1.-exp(-(m-.75)/.25)))/m;
+ return pow(max(light,0.),vec3(1./2.2));
+}
 vec3 sharpen(vec2 p){
  vec2 stepUV=2./outputSize;vec3 c=texture(image,p).rgb;
  vec3 n=(texture(image,p+vec2(stepUV.x,0)).rgb+texture(image,p-vec2(stepUV.x,0)).rgb+texture(image,p+vec2(0,stepUV.y)).rgb+texture(image,p-vec2(0,stepUV.y)).rgb)*.25;
@@ -156,7 +229,9 @@ vec3 sharpen(vec2 p){
 void main(){
  float amount=wet*(1.-bypass);
  // Tube glass: the picture bulges, so its edges bow and the corners fall off the screen.
- vec2 g=uv*2.-1.;g.x*=mix(1.,4./3.,shape);vec2 tube=g*(1.+curve*amount*.11*g.yx*g.yx)*(1.+curve*amount*.035);
+ vec2 g=uv*2.-1.;g.x*=mix(1.,4./3.,shape);float k=curve*amount*.11;
+ // Spherical glass bows every edge. A cylindrical tube (Trinitron) curves left to right only.
+ vec2 tube=mix(g*(1.+k*g.yx*g.yx),vec2(g.x*(1.+k*.45*g.x*g.x),g.y*(1.+k*.3*g.x*g.x)),cylinder)*(1.+curve*amount*.035);
  vec2 tuv=tube*.5+.5;vec2 edge=1.-smoothstep(vec2(1.)-8./outputSize,vec2(1.),abs(tube));float inside=curve*amount>0.||shape>0.?edge.x*edge.y:1.;
  vec3 original=texture(image,tuv).rgb;
  vec3 crisp=mix(original,sharpen(tuv),amount);
@@ -178,6 +253,9 @@ void main(){
   halo/=18.;c=mix(c,max(c,sqrt(halo)),bloom*amount*.3)+halo*bloom*amount*.22;}
  c=mix(c,c*vec3(.74,.97,1.08)+vec3(0.,.01,.03),cool*amount);
  c*=1.-vignette*amount*.6*pow(clamp(dot(g,g)*.5,0.,1.),1.6);
+ if(crt>.5){ // rounded corners of the tube face
+  vec2 r=abs(tube)-vec2(1.-.05);float corner=1.-smoothstep(.05-.006,.05,length(max(r,0.)));
+  c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,amount);}
  frag=vec4(clamp(c*inside,0.,1.),1);
 }`);
     this.clear();
