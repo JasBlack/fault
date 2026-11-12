@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.6.3 — tidier panels
+
+- Removed the 1 to 4 number badges from the left panel titles.
+- Capture panel says each thing once: size and frame rate on one line, "video only, no audio" below, then your takes.
+
 ## 0.6.2 — clean looks
 
 - **Colour cleanup (comb filter)** on the display tab: removes the rainbow speckle that fine black-and-white detail picks up in composite video, by averaging each line's colour with the next (the carrier flips phase between lines, so false colour cancels and real colour stays). Vertical colour detail is slightly softened, as on sets with a comb filter.
