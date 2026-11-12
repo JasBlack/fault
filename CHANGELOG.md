@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1 — selections follow video
+
+- A clicked selection (smart select or wand) now follows its subject through video, animated pictures and the demos. FAULT learns the colours of the selected area on the frame you clicked, then each frame keeps the pixels with those colours near where the selection was a frame earlier. It runs on the GPU every frame.
+- If the subject is lost (a cut, a loop, or a very fast move), FAULT looks for its colours across the whole picture and carries on from there. That can also pick up other areas of the same colour.
+- *Follow in video* turns this off (the selection then stays fixed on the screen). *Follow reach* sets how far the subject may move between frames; at maximum the selection is everything with the learned colours.
+- Following is by colour, so it works best when the subject's colours differ from what is around it.
+
 ## 0.7.0 — effect on part of the picture
 
 A new **mask** tab limits the effect to a selection; everywhere else shows the clean source.

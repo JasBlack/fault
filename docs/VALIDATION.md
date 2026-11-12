@@ -72,3 +72,8 @@ The deliverable is an experimental prototype, not a production release or a sign
 - Brightness key, picked-colour key, colour wand and smart select each limited the effect to the expected area on a test illustration, with no page errors.
 - Smart select was run with the real transformers.js 3.8.1 library and SlimSAM model files, served to the page from local copies; the live jsDelivr and Hugging Face downloads were not exercised from this environment.
 - Not checked: smart select speed on real hardware, Safari, and selection on video frames.
+
+## 0.7.1 follow checks (headless Chromium)
+
+- On a test video stepped frame by frame, a wand selection followed a moving ball for 150 frames, ignored a square of the same colour elsewhere, and found the ball again after the video jumped back (also selecting the square at that point).
+- Not checked: real footage, where subject and background colours overlap, and real-time playback on a GPU.

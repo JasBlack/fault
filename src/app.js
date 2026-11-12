@@ -17,10 +17,10 @@ const groups={
  ['Tube','How the screen makes light. Pick a set above, then adjust.',[['crt','Cathode-ray tube',0,1,1,0,''],['mask','Mask: 0 none · 1 stripes · 2 slots · 3 dots',0,3,1,1,''],['pixelSize','Mask pitch',3,24,.25,6,'px'],['phosphor','Mask strength',0,1,.01,.25,''],['beam','Scanline beam',0,1,.001,.7,''],['lines','Visible lines',180,576,1,288,''],['picture','Picture (contrast)',.6,2.5,.01,1.2,''],['black','Black level cut',0,.4,.001,.07,''],['focus','Focus',0,1,.001,.6,''],['vivid','Phosphor colour',0,1,.001,.6,''],['cool','White point 6500K → 9300K',0,1,.001,0,''],['mono','Monochrome tube',0,1,1,0,'']]],
  ['Glass','The faceplate in front of the phosphor.',[['shape','Screen shape 16:9 → 4:3',0,1,1,0,''],['curve','Screen curve',0,1,.001,0,''],['cylinder','Cylindrical tube',0,1,1,0,''],['bloom','Glow',0,1,.001,0,''],['halation','Halation',0,1,.001,.4,''],['glass','Glass reflection',0,1,.001,.4,''],['vignette','Dark corners',0,1,.001,0,''],['grille','Flat stripe mask (tube off)',0,1,.001,0,'']]]]
  ,mask:[['Key from the picture','Select by brightness or by colour. It follows moving video.',[['keyMode','Key: 0 off · 1 brightness · 2 colour',0,2,1,0,''],['keyLow','Brightness from',0,1,.001,.5,''],['keyHigh','Brightness to',0,1,.001,1,''],['keyTol','Colour tolerance',0,1,.001,.18,''],['keySoft','Edge softness',0,.5,.001,.06,'']]],
- ['Selection','How clicked areas are found and blended.',[['wandTol','Wand tolerance',0,1,.001,.14,''],['maskFeather','Feather',0,30,.5,3,'px'],['maskInvert','Invert selection',0,1,1,0,'']]]],
+ ['Selection','How clicked areas are found and blended.',[['wandTol','Wand tolerance',0,1,.001,.14,''],['maskFeather','Feather',0,30,.5,3,'px'],['maskInvert','Invert selection',0,1,1,0,''],['trackFollow','Follow in video',0,1,1,1,''],['trackReach','Follow reach',0,1,.001,.35,'']]]],
  hidden:[['','',[['keyR','',0,1,.001,1,''],['keyG','',0,1,.001,0,''],['keyB','',0,1,.001,0,'']]]]
 };
-const maskKeys=['keyMode','keyLow','keyHigh','keyTol','keySoft','wandTol','maskFeather','maskInvert','keyR','keyG','keyB'];
+const maskKeys=['keyMode','keyLow','keyHigh','keyTol','keySoft','wandTol','maskFeather','maskInvert','trackFollow','trackReach','keyR','keyG','keyB'];
 // Tube types. Mask pitch follows published figures where they exist: a 20-inch PVM (0.25 to 0.31 mm stripe pitch, 800 TV lines) has
 // roughly 415 to 515 RGB triads across the screen, which is about 3 px per triad on the 1440 px wide 4:3 picture; consumer sets
 // resolve around 300 TV lines, so their triads are nearly twice as wide. The rest is the general character of each kind of set.
@@ -140,9 +140,17 @@ const MW=960,MH=540,maskSel=new Uint8Array(MW*MH),maskHard=document.createElemen
 for(const c of[maskHard,maskSoft,snap]){c.width=MW;c.height=MH;}
 let maskTool=null,maskCount=0,sam=null,samBusy=false,samFor=null,samInputs=null,samEmbed=null;
 const SAM_LIB='https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1/dist/transformers.min.js',SAM_MODEL='Xenova/slimsam-77-uniform';
-function maskStatus(text){const el=$('#maskStatus');if(el)el.textContent=text||(maskCount?`${Math.round(maskCount/(MW*MH)*100)}% of the picture selected`:state.keyMode?'key active':'nothing selected: the effect covers the whole picture');}
+function maskStatus(text){const el=$('#maskStatus');if(el)el.textContent=text||(maskCount?`${Math.round(maskCount/(MW*MH)*100)}% of the picture selected`+(sourceMoves()&&state.trackFollow?' · following it by colour':''):state.keyMode?'key active':'nothing selected: the effect covers the whole picture');}
 function maskCommit(){maskCount=0;const g=maskHard.getContext('2d'),img=g.createImageData(MW,MH),d=img.data;for(let i=0;i<maskSel.length;i++){const v=maskSel[i]?255:0;if(v)maskCount++;d[i*4]=d[i*4+1]=d[i*4+2]=v;d[i*4+3]=255;}g.putImageData(img,0,0);
- const s=maskSoft.getContext('2d');s.filter=state.maskFeather>0?`blur(${state.maskFeather}px)`:'none';s.fillStyle='#000';s.fillRect(0,0,MW,MH);s.drawImage(maskHard,0,0);s.filter='none';engine?.setMask(maskCount?maskSoft:null);maskStatus();}
+ const s=maskSoft.getContext('2d');s.filter=state.maskFeather>0?`blur(${state.maskFeather}px)`:'none';s.fillStyle='#000';s.fillRect(0,0,MW,MH);s.drawImage(maskHard,0,0);s.filter='none';engine?.setMask(maskCount?maskSoft:null);engine?.setTrack(maskCount&&sourceMoves()?colourTable():null);maskStatus();}
+const sourceMoves=()=>!(sourceA&&!(sourceA instanceof HTMLVideoElement)&&!sourceA._anim);
+// Colour table for following: for each of 16 x 16 x 16 colours, how much more common it is inside the selection than
+// outside, on the frame the selection was made on. Blurred once so nearby shades count too.
+const lutCanvas=document.createElement('canvas');lutCanvas.width=256;lutCanvas.height=16;
+function colourTable(){const d=snap.getContext('2d',{willReadFrequently:true}).getImageData(0,0,MW,MH).data,fg=new Float32Array(4096),bg=new Float32Array(4096);let nf=0,nb=0;
+ for(let i=0;i<maskSel.length;i++){const j=i*4,bin=(d[j]>>4)+((d[j+1]>>4)<<4)+((d[j+2]>>4)<<8);if(maskSel[i]){fg[bin]++;nf++;}else{bg[bin]++;nb++;}}
+ const blur=src=>{const out=new Float32Array(4096);for(let b=0;b<16;b++)for(let g=0;g<16;g++)for(let r=0;r<16;r++){let sum=0;for(let z=-1;z<=1;z++)for(let y=-1;y<=1;y++)for(let x=-1;x<=1;x++){const rr=r+x,gg=g+y,bb=b+z;if(rr<0||rr>15||gg<0||gg>15||bb<0||bb>15)continue;sum+=src[rr+(gg<<4)+(bb<<8)]*(x||y||z?.35:1);}out[r+(g<<4)+(b<<8)]=sum;}return out;},F=blur(fg),B=blur(bg);
+ const c=lutCanvas.getContext('2d'),img=c.createImageData(256,16),o=img.data;for(let bin=0;bin<4096;bin++){const pf=F[bin]/Math.max(nf,1),pb=B[bin]/Math.max(nb,1),v=pf+pb>0?255*pf/(pf+pb):0,k=((bin>>8)*256+(bin&255))*4;o[k]=o[k+1]=o[k+2]=v;o[k+3]=255;}c.putImageData(img,0,0);return lutCanvas;}
 function maskClear(){maskSel.fill(0);maskCommit();}
 // The source as the engine frames it, so stage clicks, the wand and the model all see the same picture.
 function snapshot(){const src=sourceA||demo,w=src.videoWidth||src.naturalWidth||src.width,h=src.videoHeight||src.naturalHeight||src.height,aspect=16/9+(4/3-16/9)*(state.shape||0),r=w/h/aspect,fx=r>1?1:r,fy=r>1?1/r:1,g=snap.getContext('2d',{willReadFrequently:true});g.fillStyle='#000';g.fillRect(0,0,MW,MH);g.drawImage(src,(1-fx)/2*MW,(1-fy)/2*MH,fx*MW,fy*MH);return g;}

@@ -165,6 +165,29 @@ void main(){
  vec2 fitted=(sp-.5)/fitA+.5;vec2 pb=step(vec2(0),fitted)*step(fitted,vec2(1));
  frag=vec4((rgb(c)+high)*mix(1.,box.x*box.y*pb.x*pb.y,min(relief*3.,1.)),1);
 }`);
+    // Follow: carries a clicked selection through moving video. Each frame, pixels are classified by a colour table
+    // learned from the selected area (lut: how likely each colour belongs to it), and kept only near where the
+    // selection was on the previous frame, so the mask moves with its subject.
+    this.tracks=[this.target(480,270),this.target(480,270)];this.lutTex=this.texture();this.found=this.target(1,1);this.trackOn=0;this.trackSeed=0;this.tk=0;
+    this.track=this.program(pre+`
+uniform sampler2D a,lut,previous,seedMask,found;uniform vec2 fitA;uniform float seed,trackReach;
+float like(vec2 p){vec2 o=(p-.5)/fitA+.5;vec3 c=vec3(0);if(all(greaterThanEqual(o,vec2(0)))&&all(lessThanEqual(o,vec2(1))))c=texture(a,o).rgb;ivec3 q=ivec3(clamp(c,0.,.999)*16.);return texelFetch(lut,ivec2(q.r+q.g*16,15-q.b),0).r;}
+void main(){
+ if(seed>.5){frag=vec4(texture(seedMask,uv).r,0,0,1);return;}
+ vec2 t=1./vec2(480.,270.);float l=0.;
+ for(int i=-1;i<=1;i++)for(int j=-1;j<=1;j++)l+=like(uv+vec2(i,j)*t*1.5);
+ l/=9.;
+ float r=mix(2.,40.,trackReach),g=texture(previous,uv).r;
+ for(int k=0;k<12;k++){float ang=float(k)*.5236;vec2 d=vec2(cos(ang),sin(ang))*t;g=max(g,max(texture(previous,uv+d*r).r,texture(previous,uv+d*r*.5).r));}
+ g=mix(g,1.,step(.999,trackReach));
+ // Lost it (nothing selected anywhere, e.g. after a cut or a loop): look for its colours across the whole picture.
+ if(texture(found,vec2(.5)).r<.3)g=1.;
+ frag=vec4(smoothstep(.35,.6,l)*smoothstep(.2,.6,g),0,0,1);
+}`);
+    // One pixel that holds the strongest value anywhere in the followed mask: tells the next frame whether it still has its subject.
+    this.presence=this.program(pre+`
+uniform sampler2D mask;
+void main(){float m=0.;for(int y=0;y<135;y++)for(int x=0;x<240;x++)m=max(m,texture(mask,(vec2(x,y)*2.+1.)/vec2(480.,270.)).r);frag=vec4(m,0,0,1);}`);
     this.decoded=this.target(canvas.width,canvas.height);
     this.finish=this.program(pre+`
 uniform sampler2D decoded,previous,a,paint;uniform vec2 fitA;
@@ -284,6 +307,7 @@ void main(){
   texture(w=1,h=1,float=false){const g=this.gl,t=g.createTexture();g.bindTexture(g.TEXTURE_2D,t);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);g.texImage2D(g.TEXTURE_2D,0,float?g.RGBA16F:g.RGBA,w,h,0,g.RGBA,float?g.HALF_FLOAT:g.UNSIGNED_BYTE,null);return t;}
   target(w,h){const g=this.gl,texture=this.texture(w,h,true),fbo=g.createFramebuffer();g.bindFramebuffer(g.FRAMEBUFFER,fbo);g.framebufferTexture2D(g.FRAMEBUFFER,g.COLOR_ATTACHMENT0,g.TEXTURE_2D,texture,0);if(g.checkFramebufferStatus(g.FRAMEBUFFER)!==g.FRAMEBUFFER_COMPLETE)throw Error('Floating-point framebuffer unavailable.');return {texture,fbo,w,h};}
   program(fragment){const g=this.gl,p=g.createProgram();for(const [type,src]of [[g.VERTEX_SHADER,`#version 300 es\nprecision highp float;out vec2 uv;void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);uv=p;gl_Position=vec4(p*2.-1.,0,1);}`],[g.FRAGMENT_SHADER,fragment]]){const s=g.createShader(type);g.shaderSource(s,src);g.compileShader(s);if(!g.getShaderParameter(s,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(s));g.attachShader(p,s);g.deleteShader(s);}g.linkProgram(p);if(!g.getProgramParameter(p,g.LINK_STATUS))throw Error(g.getProgramInfoLog(p));const loc={};for(let i=0;i<g.getProgramParameter(p,g.ACTIVE_UNIFORMS);i++){const n=g.getActiveUniform(p,i).name;loc[n]=g.getUniformLocation(p,n);}return {p,loc};}
+  setTrack(lut){if(lut)this.upload(this.lutTex,lut);this.trackOn=lut?1:0;this.trackSeed=1;}
   setMask(canvas){if(canvas)this.upload(this.maskTex,canvas);this.maskActive=canvas?1:0;}
   upload(texture,source){const g=this.gl;g.bindTexture(g.TEXTURE_2D,texture);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,true);g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,source);}
   pass(program,target,textures,values){const g=this.gl;g.bindFramebuffer(g.FRAMEBUFFER,target?target.fbo:null);g.viewport(0,0,target?target.w:this.canvas.width,target?target.h:this.canvas.height);g.useProgram(program.p);let unit=0;for(const [name,tex]of Object.entries(textures)){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex);if(program.loc[name]!=null)g.uniform1i(program.loc[name],unit);unit++;}for(const [name,v]of Object.entries(values)){const l=program.loc[name];if(l==null)continue;if(Array.isArray(v))g.uniform2fv(l,v);else g.uniform1f(l,v);}g.drawArrays(g.TRIANGLES,0,3);}
@@ -292,12 +316,13 @@ void main(){
     const aspect=16/9+(4/3-16/9)*(values.shape||0),fit=s=>{const w=s.videoWidth||s.naturalWidth||s.width,h=s.videoHeight||s.naturalHeight||s.height,ratio=w/h/aspect;return ratio>1?[1,1/ratio]:[ratio,1];};
     this.upload(this.inputA,a);this.upload(this.inputB,b);
     const v={...values,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
+    let paint=this.maskTex;if(this.trackOn&&this.maskActive&&values.trackFollow>.5){const n=this.tk++%2;this.pass(this.track,this.tracks[n],{a:this.inputA,lut:this.lutTex,previous:this.tracks[1-n].texture,seedMask:this.maskTex,found:this.found.texture},{...v,seed:this.trackSeed});this.trackSeed=0;paint=this.tracks[n].texture;this.pass(this.presence,this.found,{mask:paint},v);}else this.trackSeed=1;
     this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB},v);
     this.pass(this.bend,this.bent[i],{raw:this.raw.texture,previous:this.bent[j].texture},v);
     this.pass(this.receiver,this.locks[i],{signal:this.bent[i].texture,previous:this.locks[j].texture},v);
     this.pass(this.decode,this.decoded,{signal:this.bent[i].texture,locks:this.locks[i].texture,a:this.inputA},v);
-    this.pass(this.finish,this.frames[i],{decoded:this.decoded.texture,previous:this.frames[j].texture,a:this.inputA,paint:this.maskTex},v);
-    this.pass(this.present,null,{image:this.frames[i].texture,a:this.inputA,paint:this.maskTex},v);this.frame++;
+    this.pass(this.finish,this.frames[i],{decoded:this.decoded.texture,previous:this.frames[j].texture,a:this.inputA,paint},v);
+    this.pass(this.present,null,{image:this.frames[i].texture,a:this.inputA,paint},v);this.frame++;
   }
 }
 window.FaultEngine=FaultEngine;
