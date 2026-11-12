@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.1 — tube model checked against published figures
+
+- **Phosphor colour:** the tube now uses the SMPTE-C (P22) phosphor primaries, converted for an sRGB screen, in place of a hand-picked tint. *White point* moves between D65 (studio monitors) and D93 (x 0.283, y 0.298), the cooler white Japanese consumer sets were aligned to.
+- **Mask pitch:** Sony PVM stays at 3 px per triad, which matches a 20-inch PVM (0.25 to 0.31 mm stripe pitch, 800 TV lines, roughly 415 to 515 triads across). Consumer types are coarser, in line with their roughly 300 TV lines: Trinitron TV 5 px, Slot-mask TV 5.5 px, Dot-mask set 5 px.
+- **Damper wires:** aperture-grille tubes show the two faint horizontal shadows of their damper wires.
+- Colour phosphors decay in tens of microseconds, far less than a frame, so the model adds no frame-to-frame trails.
+
 ## 0.6.0 — cathode-ray tube model and tube types
 
 - **Tube model** (tube tab, *Cathode-ray tube* on): the screen stage now works in linear light the way a tube does. The signal drives the guns through a 2.4 power law; each scanline is a Gaussian electron spot that swells with brightness, so bright lines merge and dim lines stay thin; the mask (aperture-grille stripes, staggered slots or dot triads) is applied to light and averaged over each output pixel; light scatters in the faceplate as bloom and halation; phosphor colour and white point (6500K to 9300K) are applied; highlights roll off without shifting hue.

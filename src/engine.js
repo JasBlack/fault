@@ -212,7 +212,11 @@ vec3 cathode(vec2 g,vec2 tube,vec2 tuv,vec2 pixel){
  // Phosphor colour: saturated primaries, and the white point the set was aligned to (studio 6500K to consumer 9300K).
  float y=dot(light,vec3(.2126,.7152,.0722));
  light=mix(vec3(y),light,1.+.3*vivid);
- light*=mix(vec3(1),vec3(.72,.97,1.30),cool);
+ // SMPTE-C (P22) phosphor primaries shown on an sRGB screen, at the studio white point (D65) or the D93 white
+ // (x .283, y .298) that Japanese consumer sets were aligned to. Matrices computed from the published coordinates.
+ light=mix(mat3(.9395,.0178,-.0016,.0502,.9658,-.0044,.0103,.0164,1.0060)*light,mat3(.7749,.0147,-.0013,.0508,.9774,-.0044,.0137,.0219,1.3408)*light/1.15,cool);
+ // Aperture-grille tubes steady their wires with one or two fine damper wires, which cast faint horizontal shadows.
+ if(mask>.5&&mask<1.5&&cylinder>.5){float w=1.2/outputSize.y;light*=1.-.16*(smoothstep(w,0.,abs(tuv.y-.3333))+smoothstep(w,0.,abs(tuv.y-.6667)));}
  light=mix(light,y*vec3(.84,.97,1.12),mono);
  // Glass: the unlit screen is grey, not black, and reflects a little of the room.
  light+=glass*(vec3(.006,.0065,.008)+.012*smoothstep(1.2,-.6,g.x+g.y*1.3)*vec3(.9,.95,1.));
