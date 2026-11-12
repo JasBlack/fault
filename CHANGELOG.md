@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.5 — full-screen picture
+
+- Looks and tube types no longer curve the screen, so the picture fills the frame edge to edge with square corners. *Screen curve* on the tube tab brings back the bulged glass, rounded corners and black surround.
+
 ## 0.6.4 — capture
 
 - The record button is now **capture**. With a still picture loaded it saves a 1080p PNG immediately; with a video, an animated picture or a built-in demo it records as before.

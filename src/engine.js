@@ -263,7 +263,7 @@ void main(){
  c*=1.-vignette*amount*.6*pow(clamp(dot(g,g)*.5,0.,1.),1.6);
  if(crt>.5){ // rounded corners of the tube face
   vec2 r=abs(tube)-vec2(1.-.05);float corner=1.-smoothstep(.05-.006,.05,length(max(r,0.)));
-  c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,amount);}
+  c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,amount*min(curve*8.,1.));}
  frag=vec4(clamp(c*inside,0.,1.),1);
 }`);
     this.clear();
