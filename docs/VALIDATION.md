@@ -82,3 +82,7 @@ The deliverable is an experimental prototype, not a production release or a sign
 
 - With a 20-second clip playing at 5 s, capture rewound to the start, recorded once through, stopped by itself, restored looping and downloaded the take.
 - This test browser reports MP4 support but has no working H.264 encoder, so the run above was made with the WebM fallback. MP4 output itself has not been checked here; it needs a real Chrome or Safari.
+
+## 0.7.4 shape checks (headless Chromium)
+
+- A 4:5 picture rendered and saved a 1288 × 1610 PNG; a 9:16 clip rendered at 1080 × 1920 and recorded a 1080 × 1920 take; switching back to a demo returned to 1920 × 1080. The colour wand selected the clicked area correctly in the portrait frame. No page errors.
