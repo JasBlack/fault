@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.7.5
+Version 0.7.6
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -22,7 +22,6 @@ FAULT encodes a picture or video into a simplified composite signal, then bends 
 | Space | Pause / resume |
 | B | Clean bypass |
 | C | Clear signal and frame memory |
-| H | Hide / show side panels |
 
 Double-click any slider to reset it. See the **[guide](docs/GUIDE.md)** for every control and the processing model.
 

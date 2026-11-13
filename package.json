@@ -1,6 +1,6 @@
 {
   "name": "fault-video-instrument",
-  "version": "0.7.5",
+  "version": "0.7.6",
   "description": "An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback",
   "author": "JAS.BLACK",
   "license": "MIT",

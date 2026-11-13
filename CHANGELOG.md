@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.6 — one workspace
+
+- Removed the console / output switch and the output-only view (and its **H** key). Use fullscreen to see the picture alone.
+
 ## 0.7.5 — interferer off, show mask
 
 - Interferer / input B has three choices: **＋ clip** (load a second picture or video), **bars** (generated colour bars) and **none** (turns the second input off). Before, there was no way back to no interferer once one was chosen.

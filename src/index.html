@@ -5,7 +5,7 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Fault - JAS.BLACK"><meta name="twitter:description" content="Bend pictures, GIFs and video through a broken circuit: resonant bends, voltage folds and lost sync. Free, in your browser."><meta name="twitter:image" content="https://fault.jas.black/og.jpg"><link rel="stylesheet" href="style.css"></head>
 <body data-ui="dark">
 <header>
- <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.7.5</span></div><div class="view-switch" role="group" aria-label="Workspace view"><button id="consoleView" class="selected" aria-pressed="true">console</button><button id="outputView" aria-pressed="false">output</button></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
+ <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.7.6</span></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
  <div class="transport"><button id="play" title="Pause / resume (Space)">Ⅱ pause</button><button id="clear" class="primary" title="Clear signal and frame memory (C)">⟲ clear</button><button id="record" class="record-key" title="Save a picture, or record a video"><span class="rec-dot"></span> capture</button></div>
  <div class="header-right"><button id="help" title="How to use FAULT">guide</button><button id="fullscreen" class="icon-key" title="Fullscreen output" aria-label="Fullscreen output">⛶</button><button id="theme" class="icon-key" title="Light / dark" aria-label="Switch to light theme">◐</button></div>
 </header>
@@ -23,7 +23,7 @@
   <div class="playback-row"><span id="clock">00:00</span><input id="seek" type="range" min="0" max="1" step="0.001" value="0" disabled aria-label="Seek source video"><span id="duration">LIVE</span><button id="bypass" aria-pressed="false" title="Toggle clean source (B)">bypass</button></div>
   <div class="lcd"><span id="sourceName">INTERNAL / ORBIT</span><span>local processing</span></div>
   <div class="signal-path"><span>input</span><b>→</b><span>composite</span><b>→</b><span class="active">bend / mix</span><b>→</b><span>receiver</span><b>→</b><span>display</span></div>
-  <footer><span><kbd>space</kbd><small>pause</small> <kbd>b</kbd><small>bypass</small> <kbd>c</kbd><small>clear</small> <kbd>h</kbd><small>panels</small></span><span>picture → signal → accident</span></footer>
+  <footer><span><kbd>space</kbd><small>pause</small> <kbd>b</kbd><small>bypass</small> <kbd>c</kbd><small>clear</small></span><span>picture → signal → accident</span></footer>
  </section>
  <aside class="control-column"><div class="panel inspector-head"><div class="panel-title"><b>circuit console</b><button id="reset" class="mini">reset ↺</button></div><div class="tabs" role="tablist" aria-label="Processing controls"><button data-tab="bend" class="selected" role="tab" aria-selected="true">bend</button><button data-tab="sync" role="tab" aria-selected="false">break</button><button data-tab="output" role="tab" aria-selected="false">display</button><button data-tab="tube" role="tab" aria-selected="false">tube</button><button data-tab="mask" role="tab" aria-selected="false">mask</button></div></div><div id="controls"></div></aside>
 </main>

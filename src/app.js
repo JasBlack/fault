@@ -123,15 +123,6 @@ $('#output').addEventListener('webglcontextlost',e=>{e.preventDefault();engine=n
 // Read-only diagnostic access for local smoke tests.
 window.fault={get state(){return {...state};},get engine(){return engine;},get time(){return simTime;}};
 
-// Workspace preferences affect only the interface, never the rendered output.
-function setWorkspaceView(outputOnly){
- document.body.classList.toggle('output-view',outputOnly);
- for(const [id,on] of [['consoleView',!outputOnly],['outputView',outputOnly]]){
-  const button=$('#'+id);button.classList.toggle('selected',on);button.setAttribute('aria-pressed',String(on));
- }
-}
-$('#consoleView').onclick=()=>setWorkspaceView(false);
-$('#outputView').onclick=()=>setWorkspaceView(true);
 function setTheme(theme){
  document.body.dataset.ui=theme;
  $('#theme').setAttribute('aria-label',theme==='dark'?'Switch to light theme':'Switch to dark theme');
@@ -141,7 +132,6 @@ try{setTheme(localStorage.getItem('fault-ui-theme')==='light'?'light':'dark');}c
 $('#theme').onclick=()=>setTheme(document.body.dataset.ui==='dark'?'light':'dark');
 document.addEventListener('keydown',e=>{
  if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||$('#guide').open||e.metaKey||e.ctrlKey||e.altKey)return;
- if(e.key.toLowerCase()==='h')setWorkspaceView(!document.body.classList.contains('output-view'));
 });
 
 // ---- Selection: apply the effect to part of the picture ----
