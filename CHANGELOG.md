@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.8.0 — video-synth looks, tidier stage, current guide
+
+- **Scan processor** (display tab, Video synth): redraws the picture as bright scan lines on black and pushes each line up by the brightness under it, after the Rutt/Etra scan processor. New look: **Scan processor**.
+- **Colouriser** (display tab, Video synth): cuts brightness into bands and gives each its own saturated colour with hard edges, after keyer-colourisers such as the Paik/Abe. New look: **Colouriser**, combined with frame feedback.
+- The look grid now holds twelve looks.
+- Removed the frame-rate readout above the stage and the input → display strip under it.
+- The in-app guide (the **guide** button) is rewritten to cover the current tabs, capture, mask and keys.
+
 ## 0.7.6 — one workspace
 
 - Removed the console / output switch and the output-only view (and its **H** key). Use fullscreen to see the picture alone.

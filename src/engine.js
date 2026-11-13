@@ -194,12 +194,22 @@ void main(){float m=0.;vec2 n=floor(trackSize/2.);for(int y=0;y<256;y++){if(floa
     this.decoded=this.target(canvas.width,canvas.height);
     this.finish=this.program(pre+`
 uniform sampler2D decoded,previous,a,paint;uniform vec2 fitA;
-uniform float frameFeedback,zoom,rotation,scanlines,wet,bypass,contrast;
+uniform float frameFeedback,zoom,rotation,scanlines,wet,bypass,contrast,scanDisp,scanCount,colorize,colorBands,colorShift;
 void main(){
  vec3 c=texture(decoded,uv).rgb;vec2 p=uv-.5;float ang=rotation*.025;
+ // Scan processor (after the Rutt/Etra): the picture is redrawn as a few bright scan lines on black, and each
+ // line is pushed upward by the brightness under it, so the image stands up like a relief map drawn in wire.
+ if(scanDisp>0.){float y=uv.y*scanCount,base=floor(y);vec3 acc=vec3(0);
+  for(int k=-7;k<=1;k++){float line=base+float(k);vec3 s=texture(decoded,vec2(uv.x,(line+.5)/scanCount)).rgb;float l=dot(s,vec3(.299,.587,.114));
+   float d=y-(line+.5+scanDisp*6.5*l);acc+=s*exp(-d*d/.2)*(.3+1.1*l);}
+  c=mix(c,acc,min(scanDisp*4.,1.));}
  p=mat2(cos(ang),-sin(ang),sin(ang),cos(ang))*p/(1.+zoom*.03)+.5;
  vec3 old=texture(previous,p).rgb;
  c=mix(c,old,frameFeedback);c=(c-.5)*contrast+.5;
+ // Colouriser (after keyer-colourisers such as the Paik/Abe): brightness is cut into bands and each band is
+ // given its own saturated colour, with hard edges between them. Black stays black.
+ if(colorize>0.){float l=clamp(dot(c,vec3(.299,.587,.114)),0.,1.),b=floor(l*colorBands)/max(colorBands-1.,1.);
+  vec3 hue=.5+.5*cos(6.2832*(colorShift+b*.85+vec3(0.,.33,.67)));c=mix(c,hue*(.55+.55*l)*min(b*4.,1.),colorize);}
  c*=1.-scanlines*.24*(.5+.5*cos(uv.y*SH*2.*PI));
  vec2 orig=(uv-.5)/fitA+.5;vec3 clean=vec3(0);
  if(all(greaterThanEqual(orig,vec2(0)))&&all(lessThanEqual(orig,vec2(1))))clean=texture(a,orig).rgb;
