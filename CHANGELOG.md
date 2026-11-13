@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.1 — tube type: none
+
+- The tube type list ends with **none** (was "flat"). It resets every setting a tube type changes, so the picture goes back to exactly how it was before a tube was chosen, and it is highlighted when no tube is on.
+
 ## 0.8.0 — video-synth looks, tidier stage, current guide
 
 - **Scan processor** (display tab, Video synth): redraws the picture as bright scan lines on black and pushes each line up by the brightness under it, after the Rutt/Etra scan processor. New look: **Scan processor**.

@@ -30,11 +30,12 @@ const tubes=[
  ['Trinitron TV','Living-room Trinitron: coarser stripes, cooler and more saturated, more glow.',{crt:1,picture:1.25,black:.08,mask:1,pixelSize:5,phosphor:.65,beam:.7,lines:288,focus:.6,vivid:.8,cool:.75,mono:0,cylinder:1,bloom:.45,halation:.5,glass:.5,vignette:.4}],
  ['Slot-mask TV','Typical consumer set: staggered slots, softer beam, bulging glass.',{crt:1,picture:1.2,black:.08,mask:2,pixelSize:5.5,phosphor:.65,beam:.6,lines:288,focus:.45,vivid:.6,cool:.6,mono:0,cylinder:0,bloom:.5,halation:.6,glass:.6,vignette:.55}],
  ['Dot-mask set','Older shadow-mask tube: round phosphor dots, soft and very curved.',{crt:1,picture:1.15,black:.06,mask:3,pixelSize:5,phosphor:.7,beam:.5,lines:288,focus:.5,vivid:.5,cool:.4,mono:0,cylinder:0,bloom:.5,halation:.55,glass:.65,vignette:.6}],
- ['Mono monitor','Black-and-white monitor: no mask, crisp lines, cool white phosphor.',{crt:1,picture:1.25,black:.08,mask:0,phosphor:0,beam:.85,lines:288,focus:.75,vivid:0,cool:.3,mono:1,cylinder:0,bloom:.4,halation:.7,glass:.5,vignette:.5}],
- ['Flat','No tube: the plain digital picture.',{crt:0,mono:0,cylinder:0,bloom:0,vignette:0,cool:0,grille:0}]
+ ['Mono monitor','Black-and-white monitor: no mask, crisp lines, cool white phosphor.',{crt:1,picture:1.25,black:.08,mask:0,phosphor:0,beam:.85,lines:288,focus:.75,vivid:0,cool:.3,mono:1,cylinder:0,bloom:.4,halation:.7,glass:.5,vignette:.5}]
 ];
 const definitions=Object.values(groups).flatMap(gs=>gs.flatMap(g=>g[2]));
 const defaults=Object.fromEntries(definitions.map(d=>[d[0],d[5]]));
+// None: every setting a tube type touches goes back to its default, so the picture is exactly as before a tube was chosen.
+tubes.push(['None','No tube: back to the plain picture.',Object.fromEntries([...new Set(tubes.flatMap(t=>Object.keys(t[2])))].map(k=>[k,defaults[k]]))]);
 let state={...defaults,bypass:0},tab='output',running=true,simTime=0,sourceA=null,sourceB=null,sourceAURL=null,sourceBURL=null;
 let engine,recorder=null,recordStream=null,recordStart=0,toastTimer,takes=0;
 const patches=[

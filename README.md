@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.8.0
+Version 0.8.1
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
