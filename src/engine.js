@@ -207,7 +207,7 @@ void main(){
 }`);
     this.present=this.program(pre+`
 uniform sampler2D image,a,paint;uniform vec2 outputSize,fitA;
-uniform float sharpness,pixelSize,phosphor,wet,bypass,curve,bloom,grille,vignette,cool,shape,shapeK;
+uniform float sharpness,pixelSize,phosphor,wet,bypass,curve,bloom,grille,vignette,cool,shape,shapeK,maskView;
 uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,picture,black;
 // ---- Cathode-ray tube model. Everything here works in linear light, the way the tube does. ----
 // The gun's light output rises as roughly the 2.4th power of the signal voltage.
@@ -279,7 +279,7 @@ void main(){
  // Spherical glass bows every edge. A cylindrical tube (Trinitron) curves left to right only.
  vec2 tube=mix(g*(1.+k*g.yx*g.yx),vec2(g.x*(1.+k*.45*g.x*g.x),g.y*(1.+k*.3*g.x*g.x)),cylinder)*(1.+curve*amount*.035);
  vec2 tuv=tube*.5+.5;vec2 edge=1.-smoothstep(vec2(1.)-8./outputSize,vec2(1.),abs(tube));float inside=curve*amount>0.||shape>0.?edge.x*edge.y:1.;
- amount*=selection(a,paint,fitA,tuv);
+ float sel=selection(a,paint,fitA,tuv);amount*=sel;
  vec3 original=texture(image,tuv).rgb;
  vec3 crisp=mix(original,sharpen(tuv),amount);
  float size=max(pixelSize,3.);vec2 pixel=uv*outputSize;
@@ -303,6 +303,8 @@ void main(){
  if(crt>.5){ // rounded corners of the tube face
   vec2 r=abs(tube)-vec2(1.-.05);float corner=1.-smoothstep(.05-.006,.05,length(max(r,0.)));
   c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,whole*min(curve*8.,1.));}
+ // Show mask: tint what the effect reaches in purple (screen only, never recorded).
+ if(maskView>.5){float hatch=step(.5,fract((gl_FragCoord.x+gl_FragCoord.y)/14.));float y=dot(c,vec3(.299,.587,.114));c=mix(c,vec3(.62,.30,1.)*(.55+.45*y)*(.8+.2*hatch),.78*sel);}
  frag=vec4(clamp(c*inside,0.,1.),1);
 }`);
     this.clear();

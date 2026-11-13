@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.7.5 — interferer off, show mask
+
+- Interferer / input B has three choices: **＋ clip** (load a second picture or video), **bars** (generated colour bars) and **none** (turns the second input off). Before, there was no way back to no interferer once one was chosen.
+- **show mask** on the mask tab tints the areas the effect reaches in hatched purple. It is shown on screen only and never appears in captures.
+
 ## 0.7.4 — output keeps the source's shape
 
 - The picture, saved PNGs and recordings now take the shape of the loaded picture or video: 9:16 stays 9:16 (1080 × 1920), 4:5 becomes 1288 × 1610, 16:9 stays 1920 × 1080. Each is about the same number of pixels as 1080p, with the long side at most 1920. The built-in demos stay 16:9.
