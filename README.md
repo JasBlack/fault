@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.8.2
+Version 0.9.0
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -88,7 +88,7 @@ One-time setup:
 
 ## Status
 
-FAULT 0.8 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
+FAULT 0.9 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
 
 FAULT is an original work. It contains no code, presets, binaries or media from Timecode, GLAZE or other video tools, and no Code Painter media or processing code.
 

@@ -86,3 +86,9 @@ The deliverable is an experimental prototype, not a production release or a sign
 ## 0.7.4 shape checks (headless Chromium)
 
 - A 4:5 picture rendered and saved a 1288 × 1610 PNG; a 9:16 clip rendered at 1080 × 1920 and recorded a 1080 × 1920 take; switching back to a demo returned to 1920 × 1080. The colour wand selected the clicked area correctly in the portrait frame. No page errors.
+
+## 0.9.0 parts checks (headless Chromium)
+
+- On a test illustration: the ten-part split, choosing a part by clicking, per-part effect amount and colour shift, moving and resizing a part, and cut-out holes all behaved as expected, with no page errors.
+- On a test video, a moving ball kept its own part across about 11 seconds of stepped frames, separate from two static squares.
+- Not checked: real footage, frame rate on a real GPU, and how stable the parts are across cuts.

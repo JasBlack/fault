@@ -187,6 +187,27 @@ void main(){
  if(texture(found,vec2(.5)).r<.3)g=1.;
  frag=vec4(smoothstep(.35,.6,l)*smoothstep(.2,.6,g),0,0,1);
 }`);
+    // Parts: the picture is split into ten parts by colour and position (centres supplied by the app each frame).
+    // Each part can be moved, resized, colour-shifted and given its own amount of the effect. The amount travels
+    // in the alpha channel so the tube stage follows it too.
+    this.comp=this.target(canvas.width,canvas.height);this.layers=null;
+    this.parts=this.program(pre+`
+uniform sampler2D image,a;uniform vec2 fitA;
+uniform vec3 cCol[10];uniform vec2 cPos[10];uniform vec4 lXf[10];uniform float lHue[10];uniform float partSpread,partsView,partsCut;
+vec3 src(vec2 p){vec2 o=(p-.5)/fitA+.5;if(any(lessThan(o,vec2(0)))||any(greaterThan(o,vec2(1))))return vec3(0);return texture(a,o).rgb;}
+int label(vec2 p){vec2 t=vec2(.004,.007);vec3 c=(src(p+t)+src(p-t)+src(p+vec2(t.x,-t.y))+src(p-vec2(t.x,-t.y)))*.25;float best=1e9;int k=0;
+ for(int i=0;i<10;i++){vec3 d=c-cCol[i];vec2 e=p-cPos[i];float m=dot(d,d)+partSpread*dot(e,e);if(m<best){best=m;k=i;}}return k;}
+vec3 hueShift(vec3 c,float h){vec3 q=yiq(c);float s=sin(h*6.2832),co=cos(h*6.2832);return rgb(vec3(q.x,q.y*co-q.z*s,q.y*s+q.z*co));}
+void main(){
+ int L=label(uv);vec2 q=uv;bool hole=lXf[L].x!=0.||lXf[L].y!=0.||lXf[L].z!=1.;
+ // A moved or resized part is drawn where it now lands: undo its transform and check the pixel found there is its own.
+ for(int i=0;i<10;i++){vec4 x=lXf[i];if(x.x==0.&&x.y==0.&&x.z==1.)continue;vec2 qi=cPos[i]+(uv-cPos[i]-x.xy)/x.z;
+  if(all(greaterThanEqual(qi,vec2(0)))&&all(lessThanEqual(qi,vec2(1)))&&label(qi)==i){L=i;q=qi;hole=false;}}
+ float amt=lXf[L].w;vec3 c=mix(src(q),texture(image,q).rgb,amt);if(lHue[L]!=0.)c=hueShift(c,lHue[L]);
+ if(hole&&partsCut>.5){c=vec3(0);amt=0.;}
+ if(partsView>.5){c=cCol[L]*.75+.25*vec3(fract(float(L)*.37+.1),fract(float(L)*.61+.5),fract(float(L)*.83+.3));amt=0.;}
+ frag=vec4(c,amt);
+}`);
     // One pixel that holds the strongest value anywhere in the followed mask: tells the next frame whether it still has its subject.
     this.presence=this.program(pre+`
 uniform sampler2D mask;uniform vec2 trackSize;
@@ -289,7 +310,7 @@ void main(){
  // Spherical glass bows every edge. A cylindrical tube (Trinitron) curves left to right only.
  vec2 tube=mix(g*(1.+k*g.yx*g.yx),vec2(g.x*(1.+k*.45*g.x*g.x),g.y*(1.+k*.3*g.x*g.x)),cylinder)*(1.+curve*amount*.035);
  vec2 tuv=tube*.5+.5;vec2 edge=1.-smoothstep(vec2(1.)-8./outputSize,vec2(1.),abs(tube));float inside=curve*amount>0.||shape>0.?edge.x*edge.y:1.;
- float sel=selection(a,paint,fitA,tuv);amount*=sel;
+ float sel=selection(a,paint,fitA,tuv);amount*=sel*texture(image,tuv).a;
  vec3 original=texture(image,tuv).rgb;
  vec3 crisp=mix(original,sharpen(tuv),amount);
  float size=max(pixelSize,3.);vec2 pixel=uv*outputSize;
@@ -321,19 +342,19 @@ void main(){
   }
   texture(w=1,h=1,float=false){const g=this.gl,t=g.createTexture();g.bindTexture(g.TEXTURE_2D,t);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MIN_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_MAG_FILTER,g.LINEAR);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_S,g.CLAMP_TO_EDGE);g.texParameteri(g.TEXTURE_2D,g.TEXTURE_WRAP_T,g.CLAMP_TO_EDGE);g.texImage2D(g.TEXTURE_2D,0,float?g.RGBA16F:g.RGBA,w,h,0,g.RGBA,float?g.HALF_FLOAT:g.UNSIGNED_BYTE,null);return t;}
   target(w,h){const g=this.gl,texture=this.texture(w,h,true),fbo=g.createFramebuffer();g.bindFramebuffer(g.FRAMEBUFFER,fbo);g.framebufferTexture2D(g.FRAMEBUFFER,g.COLOR_ATTACHMENT0,g.TEXTURE_2D,texture,0);if(g.checkFramebufferStatus(g.FRAMEBUFFER)!==g.FRAMEBUFFER_COMPLETE)throw Error('Floating-point framebuffer unavailable.');return {texture,fbo,w,h};}
-  program(fragment){const g=this.gl,p=g.createProgram();for(const [type,src]of [[g.VERTEX_SHADER,`#version 300 es\nprecision highp float;out vec2 uv;void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);uv=p;gl_Position=vec4(p*2.-1.,0,1);}`],[g.FRAGMENT_SHADER,fragment]]){const s=g.createShader(type);g.shaderSource(s,src);g.compileShader(s);if(!g.getShaderParameter(s,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(s));g.attachShader(p,s);g.deleteShader(s);}g.linkProgram(p);if(!g.getProgramParameter(p,g.LINK_STATUS))throw Error(g.getProgramInfoLog(p));const loc={};for(let i=0;i<g.getProgramParameter(p,g.ACTIVE_UNIFORMS);i++){const n=g.getActiveUniform(p,i).name;loc[n]=g.getUniformLocation(p,n);}return {p,loc};}
+  program(fragment){const g=this.gl,p=g.createProgram();for(const [type,src]of [[g.VERTEX_SHADER,`#version 300 es\nprecision highp float;out vec2 uv;void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);uv=p;gl_Position=vec4(p*2.-1.,0,1);}`],[g.FRAGMENT_SHADER,fragment]]){const s=g.createShader(type);g.shaderSource(s,src);g.compileShader(s);if(!g.getShaderParameter(s,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(s));g.attachShader(p,s);g.deleteShader(s);}g.linkProgram(p);if(!g.getProgramParameter(p,g.LINK_STATUS))throw Error(g.getProgramInfoLog(p));const loc={},types={};for(let i=0;i<g.getProgramParameter(p,g.ACTIVE_UNIFORMS);i++){const u=g.getActiveUniform(p,i),n=u.name.replace('[0]','');loc[n]=g.getUniformLocation(p,u.name);types[n]=u.type;}return {p,loc,types};}
   // Output and signal sizes. The picture keeps the source's shape: a 9:16 clip renders 9:16. Line count and
   // samples per line scale with the frame, so a portrait picture has the same scanline and carrier density as 16:9.
   signalSize(w,h){this.sw=Math.round(2048*w/1920);this.sh=Math.round(576*h/1080);this.tw=Math.max(2,Math.round(w/4));this.th=Math.max(2,Math.round(h/4));}
   resize(w,h){if(w===this.canvas.width&&h===this.canvas.height)return false;const g=this.gl,drop=t=>{g.deleteTexture(t.texture);g.deleteFramebuffer(t.fbo);};
-   for(const t of[this.raw,...this.bent,...this.locks,...this.frames,this.decoded,...this.tracks])drop(t);
+   for(const t of[this.raw,...this.bent,...this.locks,...this.frames,this.decoded,this.comp,...this.tracks])drop(t);
    this.canvas.width=w;this.canvas.height=h;this.signalSize(w,h);
    this.raw=this.target(this.sw,this.sh);this.bent=[this.target(this.sw,this.sh),this.target(this.sw,this.sh)];this.locks=[this.target(1,this.sh),this.target(1,this.sh)];
-   this.frames=[this.target(w,h),this.target(w,h)];this.decoded=this.target(w,h);this.tracks=[this.target(this.tw,this.th),this.target(this.tw,this.th)];this.trackSeed=1;this.clear();return true;}
+   this.frames=[this.target(w,h),this.target(w,h)];this.decoded=this.target(w,h);this.comp=this.target(w,h);this.tracks=[this.target(this.tw,this.th),this.target(this.tw,this.th)];this.trackSeed=1;this.clear();return true;}
   setTrack(lut){if(lut)this.upload(this.lutTex,lut);this.trackOn=lut?1:0;this.trackSeed=1;}
   setMask(canvas){if(canvas)this.upload(this.maskTex,canvas);this.maskActive=canvas?1:0;}
   upload(texture,source){const g=this.gl;g.bindTexture(g.TEXTURE_2D,texture);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,true);g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,source);}
-  pass(program,target,textures,values){const g=this.gl;g.bindFramebuffer(g.FRAMEBUFFER,target?target.fbo:null);g.viewport(0,0,target?target.w:this.canvas.width,target?target.h:this.canvas.height);g.useProgram(program.p);let unit=0;for(const [name,tex]of Object.entries(textures)){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex);if(program.loc[name]!=null)g.uniform1i(program.loc[name],unit);unit++;}for(const [name,v]of Object.entries(values)){const l=program.loc[name];if(l==null)continue;if(Array.isArray(v))g.uniform2fv(l,v);else g.uniform1f(l,v);}g.drawArrays(g.TRIANGLES,0,3);}
+  pass(program,target,textures,values){const g=this.gl;g.bindFramebuffer(g.FRAMEBUFFER,target?target.fbo:null);g.viewport(0,0,target?target.w:this.canvas.width,target?target.h:this.canvas.height);g.useProgram(program.p);let unit=0;for(const [name,tex]of Object.entries(textures)){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex);if(program.loc[name]!=null)g.uniform1i(program.loc[name],unit);unit++;}for(const [name,v]of Object.entries(values)){const l=program.loc[name];if(l==null)continue;if(v instanceof Float32Array){const t=program.types[name];t===g.FLOAT_VEC4?g.uniform4fv(l,v):t===g.FLOAT_VEC3?g.uniform3fv(l,v):t===g.FLOAT_VEC2?g.uniform2fv(l,v):g.uniform1fv(l,v);}else if(Array.isArray(v))g.uniform2fv(l,v);else if(typeof v==='number')g.uniform1f(l,v);}g.drawArrays(g.TRIANGLES,0,3);}
   clear(){const g=this.gl;g.clearColor(0,0,0,1);for(const t of [...this.bent,...this.frames,...this.locks]){g.bindFramebuffer(g.FRAMEBUFFER,t.fbo);g.clear(g.COLOR_BUFFER_BIT);}this.frame=0;}
   render(a,b,values,time,dt){
     const A=this.canvas.width/this.canvas.height,shapeK=1+(Math.max(A/(4/3),1)-1)*(values.shape||0),aspect=A/shapeK,fit=s=>{const w=s.videoWidth||s.naturalWidth||s.width,h=s.videoHeight||s.naturalHeight||s.height,ratio=w/h/aspect;return ratio>1?[1,1/ratio]:[ratio,1];};
@@ -345,7 +366,8 @@ void main(){
     this.pass(this.receiver,this.locks[i],{signal:this.bent[i].texture,previous:this.locks[j].texture},v);
     this.pass(this.decode,this.decoded,{signal:this.bent[i].texture,locks:this.locks[i].texture,a:this.inputA},v);
     this.pass(this.finish,this.frames[i],{decoded:this.decoded.texture,previous:this.frames[j].texture,a:this.inputA,paint},v);
-    this.pass(this.present,null,{image:this.frames[i].texture,a:this.inputA,paint},v);this.frame++;
+    let shown=this.frames[i].texture;if(this.layers){this.pass(this.parts,this.comp,{image:shown,a:this.inputA},{...v,...this.layers});shown=this.comp.texture;}
+    this.pass(this.present,null,{image:shown,a:this.inputA,paint},v);this.frame++;
   }
 }
 window.FaultEngine=FaultEngine;

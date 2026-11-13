@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.0 — parts
+
+A new **parts** tab splits any picture or video into ten parts and lets each be treated separately.
+
+- **split into parts** divides the frame by colour and position (a running k-means with ten centres). The centres keep adjusting as the video plays, so each part stays with its region or object. It works on any scene, runs offline and needs no model.
+- Click a part on the picture, or its numbered swatch, to choose it. Each part has its own **effect amount**, **size**, **move across**, **move up / down** and **colour shift**.
+- **show parts** displays the split as flat colours. **cut-out holes** leaves black where a moved or resized part used to be; otherwise the original stays underneath. **re-split** divides the current frame afresh. **Keep parts together** balances colour against position: low values group by colour wherever it is, high values make compact regions.
+- Parts are found by colour and place, not by recognising objects, so one object with several colours becomes several parts, and two things of the same colour close together can share one.
+- Part settings are not saved in patches yet.
+
 ## 0.8.2 — three more looks
 
 - **Chrome:** the relief bevels on a black-and-white tube with hard contrast, for a polished-metal picture.
