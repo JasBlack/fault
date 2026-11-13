@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.8.2 — three more looks
+
+- **Chrome:** the relief bevels on a black-and-white tube with hard contrast, for a polished-metal picture.
+- **Neon wire:** the scan processor drawn in colouriser bands on a fine Trinitron mask, with heavy glow.
+- **Tape ghost:** a soft, smeared slot-mask picture with trailing colour, line streaks and a delayed ghost of the signal.
+
 ## 0.8.1 — tube type: none
 
 - The tube type list ends with **none** (was "flat"). It resets every setting a tube type changes, so the picture goes back to exactly how it was before a tube was chosen, and it is highlighted when no tube is on.
