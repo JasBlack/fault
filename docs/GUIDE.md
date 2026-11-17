@@ -29,7 +29,7 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 - **Animated pictures:** GIF, animated WebP, APNG and animated AVIF loop like a video and can be scrubbed with the seek bar. This needs a browser with WebCodecs (current Chrome, Edge, Firefox or Safari). Older browsers show the first frame.
 - **Video:** MP4, MOV, WebM and MKV, as long as your browser can decode the codec inside. H.264 and VP9 are safe. HEVC depends on your Mac and browser. ProRes does not play in Chrome, so export it as H.264 MP4 or try Safari. A file that can't be decoded gets a message and leaves the current source running.
 
-- **Camera:** choose **live · camera** in the source list. The browser asks for permission the first time. The picture takes the camera's shape, every look and tab works on it, and **capture** records from now until you press stop. Choosing a demo or loading a file turns the camera off.
+- **Camera:** press **camera** next to open picture / video (press it again to turn it off). The browser asks for permission the first time. The picture takes the camera's shape, every look and tab works on it, and **capture** records from now until you press stop. Choosing a demo or loading a file turns the camera off.
 
 ## Playback and capture
 
