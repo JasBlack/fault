@@ -335,7 +335,7 @@ void main(){
   vec2 r=abs(tube)-vec2(1.-.05);float corner=1.-smoothstep(.05-.006,.05,length(max(r,0.)));
   c=mix(original,cathode(g,tube,tuv,pixel),amount);inside=mix(1.,corner,whole*min(curve*8.,1.));}
  // Show mask: tint what the effect reaches in purple (screen only, never recorded).
- if(maskView>.5){float hatch=step(.5,fract((gl_FragCoord.x+gl_FragCoord.y)/14.));float y=dot(c,vec3(.299,.587,.114));c=mix(c,vec3(.62,.30,1.)*(.55+.45*y)*(.8+.2*hatch),.78*sel);}
+ if(maskView>.5){float hatch=step(.5,fract((gl_FragCoord.x+gl_FragCoord.y)/14.));float y=dot(c,vec3(.299,.587,.114));c=mix(c,vec3(.545,.424,1.)*(.55+.45*y)*(.8+.2*hatch),.78*sel);}
  frag=vec4(clamp(c*inside,0.,1.),1);
 }`);
     this.clear();

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.9.1 — family rules
+
+Brings FAULT in line with the JAS.BLACK tool family's shared interface rules.
+
+- **One purple:** the interface violet (value readouts, the 1080p mark, bypass, the interferer highlight, guide headings) is now `#8b6cff`, as in every family tool. The *show mask* tint uses the same purple.
+- **Right-click resets any setting,** not only sliders: tube type, the mask and parts on/off keys (*invert*, *show mask*, *split into parts*, *show parts*, *cut-out holes*), the demo source and bypass return to their state when the page loaded. Action keys keep the normal menu.
+- **Dot grid:** the background dots are finer and fainter (16 px spacing), dark and light.
+- **Key bar:** the footer under the monitor lists the keys as small raised keys, ending with "right-click a setting resets it". Hidden on touch phones.
+- The unused numbered-step badge style is gone (FAULT has no easy mode, so its panels carry plain titles).
+
 ## 0.9.0 — parts
 
 A new **parts** tab splits any picture or video into ten parts and lets each be treated separately.

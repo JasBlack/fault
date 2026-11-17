@@ -5,7 +5,7 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Fault - JAS.BLACK"><meta name="twitter:description" content="Bend pictures, GIFs and video through a broken circuit: resonant bends, voltage folds and lost sync. Free, in your browser."><meta name="twitter:image" content="https://fault.jas.black/og.jpg"><link rel="stylesheet" href="style.css"></head>
 <body data-ui="dark">
 <header>
- <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.9.0</span></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
+ <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.9.1</span></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span><span class="status-hd">1080p</span></div></div>
  <div class="transport"><button id="play" title="Pause / resume (Space)">Ⅱ pause</button><button id="clear" class="primary" title="Clear signal and frame memory (C)">⟲ clear</button><button id="record" class="record-key" title="Save a picture, or record a video"><span class="rec-dot"></span> capture</button></div>
  <div class="header-right"><button id="help" title="How to use FAULT">guide</button><button id="fullscreen" class="icon-key" title="Fullscreen output" aria-label="Fullscreen output">⛶</button><button id="theme" class="icon-key" title="Light / dark" aria-label="Switch to light theme">◐</button></div>
 </header>
@@ -23,13 +23,13 @@
   <div class="playback-row"><span id="clock">00:00</span><input id="seek" type="range" min="0" max="1" step="0.001" value="0" disabled aria-label="Seek source video"><span id="duration">LIVE</span><button id="bypass" aria-pressed="false" title="Toggle clean source (B)">bypass</button></div>
   <div class="lcd"><span id="sourceName">INTERNAL / ORBIT</span><span>local processing</span></div>
   
-  <footer><span><kbd>space</kbd><small>pause</small> <kbd>b</kbd><small>bypass</small> <kbd>c</kbd><small>clear</small></span><span>picture → signal → accident</span></footer>
+  <footer class="keys"><span><kbd>space</kbd> pause &middot; <kbd>B</kbd> bypass &middot; <kbd>C</kbd> clear &middot; <kbd>alt</kbd>+click unselect</span><span>right-click a setting resets it</span></footer>
  </section>
  <aside class="control-column"><div class="panel inspector-head"><div class="panel-title"><b>circuit console</b><button id="reset" class="mini">reset ↺</button></div><div class="tabs" role="tablist" aria-label="Processing controls"><button data-tab="bend" class="selected" role="tab" aria-selected="true">bend</button><button data-tab="sync" role="tab" aria-selected="false">break</button><button data-tab="output" role="tab" aria-selected="false">display</button><button data-tab="tube" role="tab" aria-selected="false">tube</button><button data-tab="mask" role="tab" aria-selected="false">mask</button><button data-tab="parts" role="tab" aria-selected="false">parts</button></div></div><div id="controls"></div></aside>
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 <dialog id="guide"><button class="close" id="closeGuide" aria-label="Close guide">×</button><span class="eyebrow">FAULT / FIELD NOTES</span><h1>A picture is a signal.<br>Make it misbehave.</h1>
-<p><strong>Start:</strong> press <strong>open picture / video</strong> or drop a picture, GIF or video anywhere. Pick a <strong>look</strong>, then tune it in the console on the right. Double-click or right-click a slider to reset it.</p>
+<p><strong>Start:</strong> press <strong>open picture / video</strong> or drop a picture, GIF or video anywhere. Pick a <strong>look</strong>, then tune it in the console on the right. Double-click a slider, or right-click any setting, to put it back.</p>
 <h3>The console</h3>
 <p><strong>Bend:</strong> resonant bands that make edges ring, <em>Relief</em> for embossed edges over grey, signal fold and signal memory.<br>
 <strong>Break:</strong> mix in a second signal (the interferer: <em>＋ clip</em>, <em>bars</em> or <em>none</em>), release the receiver lock, bend lines and roll the picture.<br>

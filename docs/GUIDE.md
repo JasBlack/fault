@@ -17,7 +17,7 @@
 - **Parts tab:** *split into parts* divides the picture into ten parts by colour and position, and keeps following them as video plays. Choose a part by clicking it on the picture or by its numbered swatch, then set its *Effect amount* (0 leaves that part clean), *Size*, *Move across*, *Move up / down* and *Colour shift*. *show parts* shows the split as flat colours; *cut-out holes* leaves black where a moved part was; *re-split* starts the split again from the current frame; *Keep parts together* trades colour against position. The split goes by colour and place rather than recognising objects. Part settings are not stored in patches yet.
 - **Output:** Frame feedback recirculates the decoded image with zoom and rotation. Input gain changes the signal before encoding. Colour phase changes the decoder reference. Dry/wet and Bypass compare with the unprocessed source.
 - **Clear feedback** clears both signal and frame history. Changing patches also clears history.
-- Double-click a slider to restore that control's default.
+- Double-click a slider to restore that control's default. Right-click any setting (a slider, a tube type, an on/off key such as *invert* or *show parts*, the demo source or bypass) to return it to its state when the page loaded.
 
 The source's brightness, contrast, detail and colour strongly influence the bend. Start with high-contrast footage, adjust Frequency slowly, then push Drive and Fold.
 
