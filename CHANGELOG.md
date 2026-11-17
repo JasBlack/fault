@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.2 — camera input
+
+- **live · camera** in the source list uses your camera as the source, at up to 1080p. The browser asks for permission the first time. Video stays on your computer.
+- With the camera on, **capture** records from now until you press stop, then downloads (a camera has no start or end to rewind to). Takes are named `fault_camera_01` and so on.
+- Choosing a demo or loading a file switches the camera off. If the camera cannot start, the source goes back to the demo with a message saying why.
+- The desktop app declares its camera use for macOS.
+
 ## 0.9.1 — family rules
 
 Brings FAULT in line with the JAS.BLACK tool family's shared interface rules.

@@ -1,6 +1,6 @@
 {
   "name": "fault-video-instrument",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback",
   "author": "JAS.BLACK",
   "license": "MIT",
@@ -26,7 +26,10 @@
     ],
     "mac": {
       "category": "public.app-category.video",
-      "identity": null
+      "identity": null,
+      "extendInfo": {
+        "NSCameraUsageDescription": "FAULT uses the camera as a live video source. Video stays on this computer."
+      }
     }
   }
 }
