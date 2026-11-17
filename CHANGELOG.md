@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.4 — scan processor look
+
+- The **Scan processor** look now starts at scan displacement 1, 300 scan lines, colouriser 1, 6 colour bands and colour shift 1, on a colour tube (the black-and-white tube hid the colouriser).
+
 ## 0.9.3 — camera button
 
 - The camera is now a grey **camera** button next to open picture / video, instead of an entry in the demo list. Its light turns red while the camera is on; press it again to turn the camera off.
