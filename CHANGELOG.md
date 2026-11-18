@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.6 — look order, live cam, centred keys
+
+- Looks reordered, strongest first and grouped so neighbours belong together: relief tube, silver emboss, chrome · clean tube, clean emboss, herringbone · tape ghost, scan processor, neon wire · colouriser, hot circuit, edge bloom · voltage fold, lost lock, afterimage. FAULT now opens on Relief tube, and **reset** returns to it.
+- The camera button is now **live cam**.
+- Text is centred in every key. Indicator lights (the console tabs, live cam) sit at the top centre of the key instead of pushing the text aside.
+
 ## 0.9.5 — compact phone layout
 
 - Phones (under 700 px wide): the picture sits at the top, then all fifteen looks as small tiles in five columns, so both are on the first screen. Then source, the circuit console, memory and capture.
