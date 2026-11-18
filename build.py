@@ -11,7 +11,7 @@ def inline(m):
     return "url('data:" + types[path.suffix] + ";base64," + base64.b64encode(path.read_bytes()).decode() + "')"
 css = re.sub(r"url\('((?:fonts|looks)/[^']+)'\)", inline, css)
 html = html.replace('<link rel="stylesheet" href="style.css">', '<style>' + css + '</style>')
-for name in ('engine.js', 'app.js'):
+for name in ('vendor/mp4-muxer.js', 'engine.js', 'app.js'):
     html = html.replace(f'<script src="{name}"></script>', '<script>' + (src / name).read_text() + '</script>')
 (root / 'FAULT.html').write_text(html)
 print(root / 'FAULT.html')

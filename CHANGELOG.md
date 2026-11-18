@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.8 — MP4 everywhere, scrubbing, live cam light
+
+- Recordings are now encoded to MP4 (H.264) in the page with WebCodecs and muxed with mp4-muxer, instead of relying on the browser's MediaRecorder. This gives MP4 in browsers whose recorder can only make WebM, such as Brave and Chrome on Android. Timestamps follow the clock, so a take plays at real speed even if frames are dropped. MediaRecorder (often WebM) is used only where WebCodecs H.264 is unavailable.
+- Scrubbing: drag the time slider under the picture, with a mouse or a finger. The video follows while you hold it and plays on when you let go. On phones the slider and its knob are larger.
+- The **live cam** light sits to the left of its label.
+- **open picture / video** is renamed **open image / video**.
+
 ## 0.9.7 — the three main keys on top
 
 - The top bar now holds the three main keys: **open picture / video** (green), **live cam** (grey, its light turns green when on) and **capture** (grey, with a red light that pulses while recording).

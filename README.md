@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.9.7
+Version 0.9.8
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -14,7 +14,7 @@ FAULT encodes a picture or video into a simplified composite signal, then bends 
 
 1. Open [fault.jas.black](https://fault.jas.black) in a current desktop Chrome. WebGL 2 with floating-point rendering is required.
 2. The built-in Orbit source is already running. It opens on the **relief tube** look; try **silver emboss**, **herringbone** and **scan processor** too.
-3. Click **open picture / video** at the top, drop a file anywhere on the page, or press **live cam**. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
+3. Click **open image / video** at the top, drop a file anywhere on the page, or press **live cam**. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
 4. Press **capture**. A picture saves as a PNG straight away; a video or GIF records once through from its first frame and downloads as an MP4 (no audio). Output keeps the source's shape, so 9:16 stays 9:16. Use **save patch** to keep your settings.
 
 | Key | Action |
@@ -38,6 +38,7 @@ src/            editable source
   engine.js     WebGL 2 shader pipeline
   app.js        controls, generators, media, recording
   fonts/        Archivo + IBM Plex Mono (SIL OFL)
+  vendor/       mp4-muxer (MIT), for MP4 recording
   looks/        look thumbnails, rendered from the engine
 build.py        inlines src/ into FAULT.html
 FAULT.html      built single-file edition (committed)
@@ -95,4 +96,4 @@ FAULT is an original work. It contains no code, presets, binaries or media from 
 ## Licence and credits
 
 Code: [MIT](LICENSE). 
-Design, concept and direction by JAS.BLACK. Part of the JAS.BLACK tool family with [Code Painter](https://paint.jas.black), [SnipSnap](https://snap.jas.black) and [Growth](https://growth.jas.black). Fonts: [Archivo](src/fonts/archivo-OFL.txt) and [IBM Plex Mono](src/fonts/ibmplexmono-OFL.txt), both under the SIL Open Font License 1.1.
+Design, concept and direction by JAS.BLACK. Part of the JAS.BLACK tool family with [Code Painter](https://paint.jas.black), [SnipSnap](https://snap.jas.black) and [Growth](https://growth.jas.black). MP4 recording uses [mp4-muxer](https://github.com/Vanilagy/mp4-muxer) by Vanilagy, MIT ([licence](src/vendor/mp4-muxer-LICENSE.txt)). Fonts: [Archivo](src/fonts/archivo-OFL.txt) and [IBM Plex Mono](src/fonts/ibmplexmono-OFL.txt), both under the SIL Open Font License 1.1.

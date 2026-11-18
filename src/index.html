@@ -5,8 +5,8 @@
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="Fault - JAS.BLACK"><meta name="twitter:description" content="Bend pictures, GIFs and video through a broken circuit: resonant bends, voltage folds and lost sync. Free, in your browser."><meta name="twitter:image" content="https://fault.jas.black/og.jpg"><link rel="stylesheet" href="style.css"></head>
 <body data-ui="dark">
 <header>
- <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.9.7</span></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span></div></div>
- <div class="transport"><button class="primary open-key" id="loadA">open picture / video</button><button id="camera" class="camera-key" aria-pressed="false" title="Use your camera as the source">live cam</button><button id="record" class="record-key" title="Save a picture, or record a video"><span class="rec-dot"></span> capture</button></div>
+ <div class="header-left"><div class="brandbox"><span class="brand">FAULT</span><span class="brand-ver">v0.9.8</span></div><div class="status"><span><i class="led"></i>live</span><span class="rec-status"><i class="led off"></i>rec</span></div></div>
+ <div class="transport"><button class="primary open-key" id="loadA">open image / video</button><button id="camera" class="camera-key" aria-pressed="false" title="Use your camera as the source">live cam</button><button id="record" class="record-key" title="Save a picture, or record a video"><span class="rec-dot"></span> capture</button></div>
  <div class="header-right"><button id="help" title="How to use FAULT">guide</button><button id="fullscreen" class="icon-key" title="Fullscreen output" aria-label="Fullscreen output">⛶</button><button id="theme" class="icon-key" title="Light / dark" aria-label="Switch to light theme">◐</button></div>
 </header>
 <main>
@@ -28,7 +28,7 @@
 </main>
 <div id="toast" role="status" aria-live="polite"></div>
 <dialog id="guide"><button class="close" id="closeGuide" aria-label="Close guide">×</button><span class="eyebrow">FAULT / FIELD NOTES</span><h1>A picture is a signal.<br>Make it misbehave.</h1>
-<p><strong>Start:</strong> press <strong>open picture / video</strong>, drop a picture, GIF or video anywhere, or press <strong>live cam</strong> to use your camera. Pick a <strong>look</strong>, then tune it in the console on the right. Double-click a slider, or right-click any setting, to put it back.</p>
+<p><strong>Start:</strong> press <strong>open image / video</strong>, drop a picture, GIF or video anywhere, or press <strong>live cam</strong> to use your camera. Pick a <strong>look</strong>, then tune it in the console on the right. Double-click a slider, or right-click any setting, to put it back.</p>
 <h3>The console</h3>
 <p><strong>Bend:</strong> resonant bands that make edges ring, <em>Relief</em> for embossed edges over grey, signal fold and signal memory.<br>
 <strong>Break:</strong> mix in a second signal (the interferer: <em>+ clip</em>, <em>bars</em> or <em>none</em>), release the receiver lock, bend lines and roll the picture.<br>
@@ -37,9 +37,9 @@
 <strong>Mask:</strong> put the effect on part of the picture. Key it by brightness or a picked colour, or click the picture with <em>smart select</em> or the <em>colour wand</em> (Alt-click removes). On video the selection follows its subject by colour. <em>Show mask</em> tints the affected area purple.<br>
 <strong>Parts:</strong> split any picture or video into ten parts by colour and place. Click a part, then give it its own effect amount, size, position and colour shift. The parts follow the video.</p>
 <h3>Capture</h3>
-<p><strong>Capture</strong> saves a picture as a PNG at once. With the camera it records until you press stop. With a video it rewinds, records the clip from start to end and downloads it as an MP4 (WebM in Firefox). <strong>Record live</strong>, in the capture panel, records from now until you press stop. There is no audio. The output keeps the shape of your source, so 9:16 stays 9:16.</p>
+<p><strong>Capture</strong> saves a picture as a PNG at once. With the camera it records until you press stop. With a video it rewinds, records the clip from start to end and downloads it as an MP4. <strong>Record live</strong>, in the capture panel, records from now until you press stop. There is no audio. The output keeps the shape of your source, so 9:16 stays 9:16.</p>
 <p><strong>Memory:</strong> save patch keeps your settings as a file; load patch (or dropping the file) restores them. Footage is not stored in patches.</p>
 <p><strong>Keys:</strong> Space pauses (also the Ⅱ key beside the time), B shows the clean source, C clears signal and frame memory if feedback runs away (choosing a look clears it too).</p>
 <p class="muted">Everything runs in your browser and nothing is uploaded. Smart select downloads a small model the first time it is used. This is an original, simplified model of composite video and a cathode-ray tube, not a circuit-accurate emulation of any device. Start with modest levels if you prefer less flicker.</p></dialog>
 <input type="file" id="fileA" accept="video/*,image/*,.mov,.m4v,.mkv,.avi,.webm,.gif,.webp,.apng,.avif,.heic,.heif,.svg" hidden><input type="file" id="fileB" accept="video/*,image/*,.mov,.m4v,.mkv,.avi,.webm,.gif,.webp,.apng,.avif,.heic,.heif,.svg" hidden><input type="file" id="patchFile" accept="application/json,.json" hidden>
-<script src="engine.js"></script><script src="app.js"></script></body></html>
+<script src="vendor/mp4-muxer.js"></script><script src="engine.js"></script><script src="app.js"></script></body></html>
