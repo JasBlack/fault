@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — layout restored
+
+- Back to the 0.9.9 layout on desktop and phones: **open image / video**, **live cam** and the record key together in the middle of the top bar, keys with centred labels.
+- Kept from 1.0.0: the key is named **record**, and it is the light key with a dot before its label that turns red and blinks while recording, as in Code Painter. The left panel is called recording.
+
 ## 1.0.0 — record, and keys in the family style
 
 - The top bar has one main key, **record** (was capture): a light key with a dot before its label. While recording the dot blinks red and the label reads stop, as in Code Painter. It still saves a picture as a PNG, records a clip from start to end, or records the live cam until stop.
