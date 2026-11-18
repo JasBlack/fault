@@ -31,6 +31,8 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 
 - **Camera:** press **camera** next to open picture / video (press it again to turn it off). The browser asks for permission the first time. The picture takes the camera's shape, every look and tab works on it, and **capture** records from now until you press stop. Choosing a demo or loading a file turns the camera off.
 
+- **On a phone:** the picture and the looks come first. The other panels and every group of sliders fold: tap a title with the green › to open or close it.
+
 ## Playback and capture
 
 - Space pauses/resumes source playback and oscillators. Feedback processing can still settle while paused.

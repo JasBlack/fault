@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.5 — compact phone layout
+
+- Phones (under 700 px wide): the picture sits at the top, then all fifteen looks as small tiles in five columns, so both are on the first screen. Then source, the circuit console, memory and capture.
+- Panels fold like xenoglot's: tap a title (with the green ›) to open or close it. Console, memory and capture start closed; inside the console, each group of sliders folds too, with the first one open.
+- The picture area on phones takes the shape of the source, so a 9:16 clip fills it instead of sitting in a 16:9 box.
+- Buttons are a little more compact everywhere (30 px keys, 34 px transport).
+
 ## 0.9.4 — scan processor look
 
 - The **Scan processor** look now starts at scan displacement 1, 300 scan lines, colouriser 1, 6 colour bands and colour shift 1, on a colour tube (the black-and-white tube hid the colouriser).
