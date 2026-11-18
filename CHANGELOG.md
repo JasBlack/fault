@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 — person finder and cloak
+
+- **person** (mask tab): finds the people in every frame automatically and makes them the selection, so the effect follows them through video and the live cam. It uses MediaPipe's selfie segmenter running in the browser; the library and model (about 10 MB) download from jsDelivr and Google the first time. Nothing is uploaded.
+- **Cloak** (mask tab): fills the selection with the picture beside it, stepping sideways until it reaches background, so the subject vanishes into the scene and only the outline and the signal errors show. *Fill from across* and *Fill from up / down* set the direction and step.
+- New look **Analog error**: the cloak with heavy composite colour errors and line bending inside the outline, after decayingsun's "analog error" TouchDesigner piece. Pick it, then press **person** on the mask tab.
+- A look that sets a mask setting (such as the cloak) now applies it; other mask settings still carry over between looks.
+
 ## 1.1.0 — HD and more tubes
 
 - **HD** (tube tab, Quality: *hd · 4k*): renders at 4K, about 3840 × 2160, or the same pixel count in your source's shape. Every stage scales with the frame, so the same look gets twice the scanlines, signal samples, carrier cycles and mask cells in the same space: finer, not different. Recordings and PNGs come out at 4K (H.264 MP4 at level 5.1). It is about four times the work, so live playback may stutter on slower machines. The choice is remembered.

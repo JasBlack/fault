@@ -60,17 +60,24 @@ vec3 yiq(vec3 c){return vec3(dot(c,vec3(.299,.587,.114)),dot(c,vec3(.596,-.274,-
 vec3 rgb(vec3 c){return vec3(c.x+.956*c.y+.621*c.z,c.x-.272*c.y-.647*c.z,c.x-1.106*c.y+1.703*c.z);}
 `;
     this.encode=this.program(pre+`
-uniform sampler2D a,b;uniform float mixB,mixDrift,sourceGain;
+uniform sampler2D a,b,paint;uniform float mixB,mixDrift,sourceGain,cloak,cloakX,cloakY;
 uniform vec2 fitA,fitB;
 vec3 picture(sampler2D s,vec2 p,vec2 fit){p=(p-.5)/fit+.5;if(any(lessThan(p,vec2(0)))||any(greaterThan(p,vec2(1))))return vec3(0);return texture(s,p).rgb;}
-float encodeSignal(sampler2D s,vec2 p,vec2 fit){
+float encodeSignal(sampler2D s,vec2 p,vec2 fit,float own){
  p.x=fract(p.x);p.y=fract(p.y);
  if(p.x<.048&&p.x>.012)return -.4;
  if(p.x<.12){if(p.x>.065&&p.x<.102)return .17*cos(carrier(p));return 0.;}
- vec3 c=yiq(clamp(picture(s,vec2((p.x-.12)/.88,p.y),fit)*sourceGain,0.,2.));
+ vec2 ip=vec2((p.x-.12)/.88,p.y);vec3 pic=picture(s,ip,fit);
+ // Cloak: inside the selection the picture is replaced by the picture a little to the side, so the subject
+ // disappears into its background and only its outline and the signal errors give it away.
+ if(own>.5&&cloak>0.&&(maskPaint>.5||keyMode>.5)){float m=cloak*selection(s,paint,fit,ip);if(m>0.){vec2 st=vec2(cloakX,cloakY);vec3 fill=picture(s,ip+st,fit);
+  // A subject wider than the step would be filled with more of itself: keep stepping until the sample is background.
+  for(int k=1;k<=6;k++){vec2 q=ip+st*float(k);if(selection(s,paint,fit,q)<.5){fill=picture(s,q,fit);break;}}
+  pic=mix(pic,fill,m);}}
+ vec3 c=yiq(clamp(pic*sourceGain,0.,2.));
  return .075+.85*c.x+.45*(c.y*cos(carrier(p))+c.z*sin(carrier(p)));
 }
-void main(){float first=encodeSignal(a,uv,fitA);vec2 p=uv+vec2(mixDrift*.009*time,.012*sin(time*.23));float other=encodeSignal(b,p,fitB);frag=vec4(mix(first,first*.7+other*.9,mixB),0,0,1);}`);
+void main(){float first=encodeSignal(a,uv,fitA,1.);vec2 p=uv+vec2(mixDrift*.009*time,.012*sin(time*.23));float other=encodeSignal(b,p,fitB,0.);frag=vec4(mix(first,first*.7+other*.9,mixB),0,0,1);}`);
     this.bend=this.program(pre+`
 uniform sampler2D raw,previous;uniform float frequency,resonance,drive,fold,threshold,windowWidth,feedback,delay,secondary,safety,relief,reliefGain,droop,flatten;
 float signalAt(float x,float y){return texture(raw,vec2(clamp(x,0.,1.),clamp(y,0.,1.))).r;}
@@ -367,7 +374,7 @@ void main(){
     this.upload(this.inputA,a);this.upload(this.inputB,b);
     const q=this.quality||1,v={...values,scanCount:(values.scanCount||110)*q,shapeK,sig:[this.sw,this.sh],trackSize:[this.tw,this.th],lines:(values.lines||288)*this.canvas.height/1080,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
     let paint=this.maskTex;if(this.trackOn&&this.maskActive&&values.trackFollow>.5){const n=this.tk++%2;this.pass(this.track,this.tracks[n],{a:this.inputA,lut:this.lutTex,previous:this.tracks[1-n].texture,seedMask:this.maskTex,found:this.found.texture},{...v,seed:this.trackSeed});this.trackSeed=0;paint=this.tracks[n].texture;this.pass(this.presence,this.found,{mask:paint},v);}else this.trackSeed=1;
-    this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB},v);
+    this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB,paint},v);
     this.pass(this.bend,this.bent[i],{raw:this.raw.texture,previous:this.bent[j].texture},v);
     this.pass(this.receiver,this.locks[i],{signal:this.bent[i].texture,previous:this.locks[j].texture},v);
     this.pass(this.decode,this.decoded,{signal:this.bent[i].texture,locks:this.locks[i].texture,a:this.inputA},v);
