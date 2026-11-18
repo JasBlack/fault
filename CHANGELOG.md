@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.7 — the three main keys on top
+
+- The top bar now holds the three main keys: **open picture / video** (green), **live cam** (grey, its light turns green when on) and **capture** (grey, with a red light that pulses while recording).
+- **Pause** moved to a small Ⅱ key beside the time under the picture. Space still pauses.
+- The **clear** button is gone. Choosing a look or loading a source already clears signal and frame memory; press **C** if feedback runs away.
+
 ## 0.9.6 — look order, live cam, centred keys
 
 - Looks reordered, strongest first and grouped so neighbours belong together: relief tube, silver emboss, chrome · clean tube, clean emboss, herringbone · tape ghost, scan processor, neon wire · colouriser, hot circuit, edge bloom · voltage fold, lost lock, afterimage. FAULT now opens on Relief tube, and **reset** returns to it.
