@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.9.9 — look tweaks
+
+- **Scan processor** is black and white again by default (colouriser off, monochrome tube). Turn *Colouriser* up on the display tab for the coloured version.
+- **Clean emboss** now comes before **Silver emboss** in the look grid.
+
 ## 0.9.8 — MP4 everywhere, scrubbing, live cam light
 
 - Recordings are now encoded to MP4 (H.264) in the page with WebCodecs and muxed with mp4-muxer, instead of relying on the browser's MediaRecorder. This gives MP4 in browsers whose recorder can only make WebM, such as Brave and Chrome on Android. Timestamps follow the clock, so a take plays at real speed even if frames are dropped. MediaRecorder (often WebM) is used only where WebCodecs H.264 is unavailable.
