@@ -29,7 +29,7 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 - **Animated pictures:** GIF, animated WebP, APNG and animated AVIF loop like a video and can be scrubbed with the seek bar. This needs a browser with WebCodecs (current Chrome, Edge, Firefox or Safari). Older browsers show the first frame.
 - **Video:** MP4, MOV, WebM and MKV, as long as your browser can decode the codec inside. H.264 and VP9 are safe. HEVC depends on your Mac and browser. ProRes does not play in Chrome, so export it as H.264 MP4 or try Safari. A file that can't be decoded gets a message and leaves the current source running.
 
-- **Camera:** press **live cam** next to open image / video (press it again to turn it off). The browser asks for permission the first time. The picture takes the camera's shape, every look and tab works on it, and **capture** records from now until you press stop. Choosing a demo or loading a file turns the camera off.
+- **Camera:** press **live cam** next to open image / video (press it again to turn it off). The browser asks for permission the first time. The picture takes the camera's shape, every look and tab works on it, and **record** records from now until you press stop. Choosing a demo or loading a file turns the camera off.
 
 - **On a phone:** the picture and the looks come first. The other panels and every group of sliders fold: tap a title with the green › to open or close it.
 
@@ -38,9 +38,9 @@ The source's brightness, contrast, detail and colour strongly influence the bend
 - Space pauses/resumes source playback and oscillators. Feedback processing can still settle while paused.
 - B toggles clean bypass. C clears history. Keyboard shortcuts are ignored while editing controls.
 - Seek works for source A videos. Loaded sources loop and their audio is muted.
-- The output takes the shape of the loaded picture or video: a 9:16 clip renders, saves and records at 1080 × 1920, a 4:5 picture at 1288 × 1610, 16:9 at 1920 × 1080 (about 1080p worth of pixels, long side at most 1920). The size is shown in the capture panel.
-- **Capture** does the right thing for the source. With a still picture loaded it saves one 1920 × 1080 PNG immediately. With a video it rewinds to the first frame, records the clip once through and stops at the end; an animated picture records one loop; a built-in demo records until you press **stop**. The take downloads automatically as an H.264 MP4, encoded in the page, so it is MP4 on phones too. Only a browser without WebCodecs H.264 falls back to its own recorder, which may give WebM.
-- **record live** (capture panel) records from now until you press stop, without rewinding the clip, so you can perform the controls. It also downloads when you stop.
+- The output takes the shape of the loaded picture or video: a 9:16 clip renders, saves and records at 1080 × 1920, a 4:5 picture at 1288 × 1610, 16:9 at 1920 × 1080 (about 1080p worth of pixels, long side at most 1920). The size is shown in the recording panel.
+- **Record** does the right thing for the source. With a still picture loaded it saves one 1920 × 1080 PNG immediately. With a video it rewinds to the first frame, records the clip once through and stops at the end; an animated picture records one loop; a built-in demo records until you press **stop**. The take downloads automatically as an H.264 MP4, encoded in the page, so it is MP4 on phones too. Only a browser without WebCodecs H.264 falls back to its own recorder, which may give WebM.
+- **record live** (recording panel) records from now until you press stop, without rewinding the clip, so you can perform the controls. It also downloads when you stop.
 - Recording captures the processed canvas at 1920 × 1080, with a 30 fps target. **Video only: audio is not captured.** Actual frame rate depends on rendering speed.
 - Stop recording, then click the take link to save it. WebM is preferred where supported, with MP4 as a fallback. No guarantee of ProRes or frame-accurate offline export.
 - Each take is limited to 10 minutes to bound memory use. Download takes before closing; they are not stored persistently.

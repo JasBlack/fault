@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.0 — record, and keys in the family style
+
+- The top bar has one main key, **record** (was capture): a light key with a dot before its label. While recording the dot blinks red and the label reads stop, as in Code Painter. It still saves a picture as a PNG, records a clip from start to end, or records the live cam until stop.
+- **open image / video** and **live cam** are back at the top of the source panel. On phones the source panel comes after the looks.
+- Keys follow the JAS.BLACK family: the label sits at the bottom of the key and its light, where it has one, is centred near the top.
+
 ## 0.9.9 — look tweaks
 
 - **Scan processor** is black and white again by default (colouriser off, monochrome tube). Turn *Colouriser* up on the display tab for the coloured version.

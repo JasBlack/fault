@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 0.9.9
+Version 1.0.0
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -14,8 +14,8 @@ FAULT encodes a picture or video into a simplified composite signal, then bends 
 
 1. Open [fault.jas.black](https://fault.jas.black) in a current desktop Chrome. WebGL 2 with floating-point rendering is required.
 2. The built-in Orbit source is already running. It opens on the **relief tube** look; try **silver emboss**, **herringbone** and **scan processor** too.
-3. Click **open image / video** at the top, drop a file anywhere on the page, or press **live cam**. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
-4. Press **capture**. A picture saves as a PNG straight away; a video or GIF records once through from its first frame and downloads as an MP4 (no audio). Output keeps the source's shape, so 9:16 stays 9:16. Use **save patch** to keep your settings.
+3. Click **open image / video** in the source panel, drop a file anywhere on the page, or press **live cam**. Pictures, animated GIF / WebP / PNG, and videos all work. Drop onto **interferer / input b** to load the second signal.
+4. Press **record**. A picture saves as a PNG straight away; a video or GIF records once through from its first frame and downloads as an MP4 (no audio). Output keeps the source's shape, so 9:16 stays 9:16. Use **save patch** to keep your settings.
 
 | Key | Action |
 | --- | --- |
@@ -89,7 +89,7 @@ One-time setup:
 
 ## Status
 
-FAULT 0.9 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
+FAULT 1.0 is an experimental prototype. It has been checked in headless Chromium (rendering, looks, theme, recording) and its shaders compile and render under Mesa. Real-GPU performance on a Mac, Safari and the Electron shell have not been verified. See [docs/VALIDATION.md](docs/VALIDATION.md) for details and [CHANGELOG.md](CHANGELOG.md) for history.
 
 FAULT is an original work. It contains no code, presets, binaries or media from Timecode, GLAZE or other video tools, and no Code Painter media or processing code.
 
