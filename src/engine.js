@@ -5,7 +5,7 @@ class FaultEngine {
     this.canvas=canvas;
     const gl=this.gl=canvas.getContext('webgl2',{alpha:false,antialias:false,preserveDrawingBuffer:true});
     if(!gl||!gl.getExtension('EXT_color_buffer_float')) throw Error('FAULT needs WebGL 2 with floating-point rendering. Try current Chrome with graphics acceleration enabled.');
-    this.frame=0;this.signalSize(canvas.width,canvas.height);
+    this.frame=0;this.quality=1;this.maxTex=gl.getParameter(gl.MAX_TEXTURE_SIZE);this.signalSize(canvas.width,canvas.height);
     gl.bindVertexArray(gl.createVertexArray());
     this.inputA=this.texture();this.inputB=this.texture();this.maskTex=this.texture();this.maskActive=0;
     this.raw=this.target(this.sw,this.sh);
@@ -215,7 +215,7 @@ void main(){float m=0.;vec2 n=floor(trackSize/2.);for(int y=0;y<256;y++){if(floa
     this.decoded=this.target(canvas.width,canvas.height);
     this.finish=this.program(pre+`
 uniform sampler2D decoded,previous,a,paint;uniform vec2 fitA;
-uniform float frameFeedback,zoom,rotation,scanlines,wet,bypass,contrast,scanDisp,scanCount,colorize,colorBands,colorShift;
+uniform float frameFeedback,zoom,rotation,scanlines,wet,bypass,contrast,scanDisp,scanCount,colorize,colorBands,colorShift,persist;
 void main(){
  vec3 c=texture(decoded,uv).rgb;vec2 p=uv-.5;float ang=rotation*.025;
  // Scan processor (after the Rutt/Etra): the picture is redrawn as a few bright scan lines on black, and each
@@ -226,7 +226,9 @@ void main(){
   c=mix(c,acc,min(scanDisp*4.,1.));}
  p=mat2(cos(ang),-sin(ang),sin(ang),cos(ang))*p/(1.+zoom*.03)+.5;
  vec3 old=texture(previous,p).rgb;
- c=mix(c,old,frameFeedback);c=(c-.5)*contrast+.5;
+ c=mix(c,old,frameFeedback);
+ // Phosphor persistence: bright light fades over several frames instead of at once (long-persistence phosphors such as P1, P39).
+ if(persist>0.)c=max(c,texture(previous,uv).rgb*persist);c=(c-.5)*contrast+.5;
  // Colouriser (after keyer-colourisers such as the Paik/Abe): brightness is cut into bands and each band is
  // given its own saturated colour, with hard edges between them. Black stays black.
  if(colorize>0.){float l=clamp(dot(c,vec3(.299,.587,.114)),0.,1.),b=floor(l*colorBands)/max(colorBands-1.,1.);
@@ -239,7 +241,7 @@ void main(){
     this.present=this.program(pre+`
 uniform sampler2D image,a,paint;uniform vec2 outputSize,fitA;
 uniform float sharpness,pixelSize,phosphor,wet,bypass,curve,bloom,grille,vignette,cool,shape,shapeK,maskView;
-uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,picture,black;
+uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,picture,black,monoTint,converge;
 // ---- Cathode-ray tube model. Everything here works in linear light, the way the tube does. ----
 // The gun's light output rises as roughly the 2.4th power of the signal voltage.
 // The set's contrast ("picture") and brightness knobs act on the voltage first: turned up, darks fall below
@@ -247,7 +249,10 @@ uniform float crt,mask,beam,lines,focus,halation,cylinder,vivid,glass,mono,pictu
 vec3 emission(vec3 v){v=(v-black)*picture/(1.-black);return pow(clamp(v,0.,1.35),vec3(2.4));}
 // One scanline's drive at a point. The video amplifier has limited bandwidth, so the beam cannot change
 // instantly along the line: lower focus spreads it sideways.
-vec3 drive(vec2 p){float w=(1.-focus)*2.6/outputSize.x;
+// Convergence: the three beams do not land on the same spot, worst towards the edges. Red lands right of green, blue left.
+vec3 drive0(vec2 p);
+vec3 drive(vec2 p){vec3 e=drive0(p);if(converge>0.){float cv=converge*(1.5+3.5*abs(p.x*2.-1.))*(outputSize.y/1080.)/outputSize.x;e.r=drive0(p+vec2(cv,cv*.3)).r;e.b=drive0(p-vec2(cv,-cv*.2)).b;}return e;}
+vec3 drive0(vec2 p){float w=(1.-focus)*2.6/outputSize.x;
  return emission((texture(image,p-vec2(w,0)).rgb+2.*texture(image,p).rgb+texture(image,p+vec2(w,0)).rgb)*.25);}
 // The raster: each scanline is a sweep of a roughly Gaussian electron spot. The spot grows with beam current,
 // so bright lines swell and merge while dim lines stay thin with dark gaps between them.
@@ -290,7 +295,8 @@ vec3 cathode(vec2 g,vec2 tube,vec2 tuv,vec2 pixel){
  light=mix(mat3(.9395,.0178,-.0016,.0502,.9658,-.0044,.0103,.0164,1.0060)*light,mat3(.7749,.0147,-.0013,.0508,.9774,-.0044,.0137,.0219,1.3408)*light/1.15,cool);
  // Aperture-grille tubes steady their wires with one or two fine damper wires, which cast faint horizontal shadows.
  if(mask>.5&&mask<1.5&&cylinder>.5){float w=1.2/outputSize.y;light*=1.-.16*(smoothstep(w,0.,abs(tuv.y-.3333))+smoothstep(w,0.,abs(tuv.y-.6667)));}
- light=mix(light,y*vec3(.84,.97,1.12),mono);
+ // Monochrome tubes: P4 cool white, P1 green (terminals, scopes) or P3 amber. Each tint keeps the same luminance.
+ vec3 tint=monoTint<.5?vec3(.84,.97,1.12):monoTint<1.5?vec3(.25,1.06,.38):vec3(1.55,.86,.18);light=mix(light,y*tint/dot(tint,vec3(.2126,.7152,.0722)),mono);
  // Glass: the unlit screen is grey, not black, and reflects a little of the room.
  light+=glass*(vec3(.006,.0065,.008)+.012*smoothstep(1.2,-.6,g.x+g.y*1.3)*vec3(.9,.95,1.));
  light*=1.-vignette*.6*pow(clamp(dot(g,g)*.5,0.,1.),1.6);
@@ -345,8 +351,8 @@ void main(){
   program(fragment){const g=this.gl,p=g.createProgram();for(const [type,src]of [[g.VERTEX_SHADER,`#version 300 es\nprecision highp float;out vec2 uv;void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);uv=p;gl_Position=vec4(p*2.-1.,0,1);}`],[g.FRAGMENT_SHADER,fragment]]){const s=g.createShader(type);g.shaderSource(s,src);g.compileShader(s);if(!g.getShaderParameter(s,g.COMPILE_STATUS))throw Error(g.getShaderInfoLog(s));g.attachShader(p,s);g.deleteShader(s);}g.linkProgram(p);if(!g.getProgramParameter(p,g.LINK_STATUS))throw Error(g.getProgramInfoLog(p));const loc={},types={};for(let i=0;i<g.getProgramParameter(p,g.ACTIVE_UNIFORMS);i++){const u=g.getActiveUniform(p,i),n=u.name.replace('[0]','');loc[n]=g.getUniformLocation(p,u.name);types[n]=u.type;}return {p,loc,types};}
   // Output and signal sizes. The picture keeps the source's shape: a 9:16 clip renders 9:16. Line count and
   // samples per line scale with the frame, so a portrait picture has the same scanline and carrier density as 16:9.
-  signalSize(w,h){this.sw=Math.round(2048*w/1920);this.sh=Math.round(576*h/1080);this.tw=Math.max(2,Math.round(w/4));this.th=Math.max(2,Math.round(h/4));}
-  resize(w,h){if(w===this.canvas.width&&h===this.canvas.height)return false;const g=this.gl,drop=t=>{g.deleteTexture(t.texture);g.deleteFramebuffer(t.fbo);};
+  signalSize(w,h){const q=this.quality||1,m=this.maxTex||4096;this.sw=Math.min(m,Math.round(2048*w/1920));this.sh=Math.min(m,Math.round(576*h/1080));this.tw=Math.max(2,Math.round(w/4/q));this.th=Math.max(2,Math.round(h/4/q));}
+  resize(w,h,force){if(!force&&w===this.canvas.width&&h===this.canvas.height)return false;const g=this.gl,drop=t=>{g.deleteTexture(t.texture);g.deleteFramebuffer(t.fbo);};
    for(const t of[this.raw,...this.bent,...this.locks,...this.frames,this.decoded,this.comp,...this.tracks])drop(t);
    this.canvas.width=w;this.canvas.height=h;this.signalSize(w,h);
    this.raw=this.target(this.sw,this.sh);this.bent=[this.target(this.sw,this.sh),this.target(this.sw,this.sh)];this.locks=[this.target(1,this.sh),this.target(1,this.sh)];
@@ -359,7 +365,7 @@ void main(){
   render(a,b,values,time,dt){
     const A=this.canvas.width/this.canvas.height,shapeK=1+(Math.max(A/(4/3),1)-1)*(values.shape||0),aspect=A/shapeK,fit=s=>{const w=s.videoWidth||s.naturalWidth||s.width,h=s.videoHeight||s.naturalHeight||s.height,ratio=w/h/aspect;return ratio>1?[1,1/ratio]:[ratio,1];};
     this.upload(this.inputA,a);this.upload(this.inputB,b);
-    const v={...values,shapeK,sig:[this.sw,this.sh],trackSize:[this.tw,this.th],lines:(values.lines||288)*this.canvas.height/1080,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
+    const q=this.quality||1,v={...values,scanCount:(values.scanCount||110)*q,shapeK,sig:[this.sw,this.sh],trackSize:[this.tw,this.th],lines:(values.lines||288)*this.canvas.height/1080,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
     let paint=this.maskTex;if(this.trackOn&&this.maskActive&&values.trackFollow>.5){const n=this.tk++%2;this.pass(this.track,this.tracks[n],{a:this.inputA,lut:this.lutTex,previous:this.tracks[1-n].texture,seedMask:this.maskTex,found:this.found.texture},{...v,seed:this.trackSeed});this.trackSeed=0;paint=this.tracks[n].texture;this.pass(this.presence,this.found,{mask:paint},v);}else this.trackSeed=1;
     this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB},v);
     this.pass(this.bend,this.bent[i],{raw:this.raw.texture,previous:this.bent[j].texture},v);

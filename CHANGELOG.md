@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0 — HD and more tubes
+
+- **HD** (tube tab, Quality: *hd · 4k*): renders at 4K, about 3840 × 2160, or the same pixel count in your source's shape. Every stage scales with the frame, so the same look gets twice the scanlines, signal samples, carrier cycles and mask cells in the same space: finer, not different. Recordings and PNGs come out at 4K (H.264 MP4 at level 5.1). It is about four times the work, so live playback may stutter on slower machines. The choice is remembered.
+- Six more tube types: **Broadcast monitor** (finest stripes, sharpest beam), **Arcade monitor** (low-resolution dot triads, bold scanlines), **Projection TV** (three tubes out of convergence, no mask, glowing), **Portable B&W**, **Green terminal** (P1 phosphor, lingering light) and **Amber terminal** (P3).
+- New tube controls: *Mono phosphor* (white, green or amber), *Phosphor persistence* (light fades over several frames) and *Convergence error* (red and blue land beside green, worse towards the edges).
+
 ## 1.0.1 — layout restored
 
 - Back to the 0.9.9 layout on desktop and phones: **open image / video**, **live cam** and the record key together in the middle of the top bar, keys with centred labels.
