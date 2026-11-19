@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 — phone sheet, better cloak
+
+- **Phones:** the picture fills the top of the screen and the settings live in a bottom sheet, so you can move sliders and watch the picture at the same time. The sheet has one tab per section (looks, source, bend, break, display, tube, mask, parts, record) in a segmented tray, as in xenoglot. Drag the handle to resize it; tap it to fold the sheet down to just its tabs. Desktop is unchanged.
+- **Cloak fill:** instead of repeating a strip from beside the subject, the fill now uses the real background. On video FAULT remembers what was behind the subject on earlier frames; where nothing is remembered yet (a still, the first frames), it stretches the colours from the silhouette's edges across. *Fill: shifted copy* brings back the old offset method; *Fill offset* moves the fill.
+- The Analog error thumbnail is now made from FAULT's own demo.
+
 ## 1.2.0 — person finder and cloak
 
 - **person** (mask tab): finds the people in every frame automatically and makes them the selection, so the effect follows them through video and the live cam. It uses MediaPipe's selfie segmenter running in the browser; the library and model (about 10 MB) download from jsDelivr and Google the first time. Nothing is uploaded.

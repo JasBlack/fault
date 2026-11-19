@@ -60,9 +60,24 @@ vec3 yiq(vec3 c){return vec3(dot(c,vec3(.299,.587,.114)),dot(c,vec3(.596,-.274,-
 vec3 rgb(vec3 c){return vec3(c.x+.956*c.y+.621*c.z,c.x-.272*c.y-.647*c.z,c.x-1.106*c.y+1.703*c.z);}
 `;
     this.encode=this.program(pre+`
-uniform sampler2D a,b,paint;uniform float mixB,mixDrift,sourceGain,cloak,cloakX,cloakY;
+uniform sampler2D a,b,paint,plate;uniform float mixB,mixDrift,sourceGain,cloak,cloakX,cloakY,cloakMode;
 uniform vec2 fitA,fitB;
 vec3 picture(sampler2D s,vec2 p,vec2 fit){p=(p-.5)/fit+.5;if(any(lessThan(p,vec2(0)))||any(greaterThan(p,vec2(1))))return vec3(0);return texture(s,p).rgb;}
+// What to show where the subject was. Background mode uses the remembered background (what was there on earlier
+// frames, kept by the plate pass) and, where nothing is remembered yet, stretches the colours found at the
+// silhouette's left and right edges across it. Shift mode is the plain offset copy.
+vec3 cloakFill(sampler2D s,vec2 ip,vec2 fit){
+ vec2 st=vec2(cloakX,cloakY);
+ if(cloakMode>.5){vec3 f=picture(s,ip+st,fit);for(int k=1;k<=6;k++){vec2 q=ip+st*float(k);if(selection(s,paint,fit,q)<.5){f=picture(s,q,fit);break;}}return f;}
+ vec4 mem=texture(plate,ip+st);
+ float dl=0.,dr=0.;vec3 cl=vec3(0),cr=vec3(0);bool fl=false,fr=false;
+ for(int k=1;k<=64;k++){float d=float(k)*.008;
+  if(!fl){vec2 q=ip+st+vec2(-d,0);if(q.x<0.||selection(s,paint,fit,q)<.5){fl=true;dl=d;cl=picture(s,vec2(max(q.x,0.),q.y),fit);}}
+  if(!fr){vec2 q=ip+st+vec2(d,0);if(q.x>1.||selection(s,paint,fit,q)<.5){fr=true;dr=d;cr=picture(s,vec2(min(q.x,1.),q.y),fit);}}
+  if(fl&&fr)break;}
+ vec3 stretch=fl&&fr?mix(cl,cr,dl/(dl+dr)):fl?cl:fr?cr:picture(s,ip,fit);
+ return mix(stretch,mem.rgb,smoothstep(.3,.9,mem.a));
+}
 float encodeSignal(sampler2D s,vec2 p,vec2 fit,float own){
  p.x=fract(p.x);p.y=fract(p.y);
  if(p.x<.048&&p.x>.012)return -.4;
@@ -70,10 +85,7 @@ float encodeSignal(sampler2D s,vec2 p,vec2 fit,float own){
  vec2 ip=vec2((p.x-.12)/.88,p.y);vec3 pic=picture(s,ip,fit);
  // Cloak: inside the selection the picture is replaced by the picture a little to the side, so the subject
  // disappears into its background and only its outline and the signal errors give it away.
- if(own>.5&&cloak>0.&&(maskPaint>.5||keyMode>.5)){float m=cloak*selection(s,paint,fit,ip);if(m>0.){vec2 st=vec2(cloakX,cloakY);vec3 fill=picture(s,ip+st,fit);
-  // A subject wider than the step would be filled with more of itself: keep stepping until the sample is background.
-  for(int k=1;k<=6;k++){vec2 q=ip+st*float(k);if(selection(s,paint,fit,q)<.5){fill=picture(s,q,fit);break;}}
-  pic=mix(pic,fill,m);}}
+ if(own>.5&&cloak>0.&&(maskPaint>.5||keyMode>.5)){float m=cloak*selection(s,paint,fit,ip);if(m>0.)pic=mix(pic,cloakFill(s,ip,fit),m);}
  vec3 c=yiq(clamp(pic*sourceGain,0.,2.));
  return .075+.85*c.x+.45*(c.y*cos(carrier(p))+c.z*sin(carrier(p)));
 }
@@ -219,6 +231,12 @@ void main(){
     this.presence=this.program(pre+`
 uniform sampler2D mask;uniform vec2 trackSize;
 void main(){float m=0.;vec2 n=floor(trackSize/2.);for(int y=0;y<256;y++){if(float(y)>=n.y)break;for(int x=0;x<256;x++){if(float(x)>=n.x)break;m=max(m,texture(mask,(vec2(x,y)*2.+1.)/trackSize).r);}}frag=vec4(m,0,0,1);}`);
+    this.plates=[this.target(this.tw*2,this.th*2),this.target(this.tw*2,this.th*2)];this.pk=0;
+    this.plateProg=this.program(pre+`
+uniform sampler2D a,paint,previous;uniform vec2 fitA;
+void main(){vec2 o=(uv-.5)/fitA+.5;vec3 c=vec3(0);if(all(greaterThanEqual(o,vec2(0)))&&all(lessThanEqual(o,vec2(1))))c=texture(a,o).rgb;
+ vec4 old=texture(previous,uv);float free=1.-selection(a,paint,fitA,uv);
+ frag=free>.5?vec4(mix(old.a>.01?old.rgb:c,c,.12),min(1.,old.a+.1)):old;}`);
     this.decoded=this.target(canvas.width,canvas.height);
     this.finish=this.program(pre+`
 uniform sampler2D decoded,previous,a,paint;uniform vec2 fitA;
@@ -360,11 +378,12 @@ void main(){
   // samples per line scale with the frame, so a portrait picture has the same scanline and carrier density as 16:9.
   signalSize(w,h){const q=this.quality||1,m=this.maxTex||4096;this.sw=Math.min(m,Math.round(2048*w/1920));this.sh=Math.min(m,Math.round(576*h/1080));this.tw=Math.max(2,Math.round(w/4/q));this.th=Math.max(2,Math.round(h/4/q));}
   resize(w,h,force){if(!force&&w===this.canvas.width&&h===this.canvas.height)return false;const g=this.gl,drop=t=>{g.deleteTexture(t.texture);g.deleteFramebuffer(t.fbo);};
-   for(const t of[this.raw,...this.bent,...this.locks,...this.frames,this.decoded,this.comp,...this.tracks])drop(t);
+   for(const t of[this.raw,...this.bent,...this.locks,...this.frames,this.decoded,this.comp,...this.tracks,...this.plates])drop(t);
    this.canvas.width=w;this.canvas.height=h;this.signalSize(w,h);
    this.raw=this.target(this.sw,this.sh);this.bent=[this.target(this.sw,this.sh),this.target(this.sw,this.sh)];this.locks=[this.target(1,this.sh),this.target(1,this.sh)];
-   this.frames=[this.target(w,h),this.target(w,h)];this.decoded=this.target(w,h);this.comp=this.target(w,h);this.tracks=[this.target(this.tw,this.th),this.target(this.tw,this.th)];this.trackSeed=1;this.clear();return true;}
+   this.frames=[this.target(w,h),this.target(w,h)];this.decoded=this.target(w,h);this.comp=this.target(w,h);this.tracks=[this.target(this.tw,this.th),this.target(this.tw,this.th)];this.plates=[this.target(this.tw*2,this.th*2),this.target(this.tw*2,this.th*2)];this.trackSeed=1;this.clear();return true;}
   setTrack(lut){if(lut)this.upload(this.lutTex,lut);this.trackOn=lut?1:0;this.trackSeed=1;}
+  clearPlate(){const g=this.gl;g.clearColor(0,0,0,0);for(const t of this.plates){g.bindFramebuffer(g.FRAMEBUFFER,t.fbo);g.clear(g.COLOR_BUFFER_BIT);}g.clearColor(0,0,0,1);}
   setMask(canvas){if(canvas)this.upload(this.maskTex,canvas);this.maskActive=canvas?1:0;}
   upload(texture,source){const g=this.gl;g.bindTexture(g.TEXTURE_2D,texture);g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL,true);g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,source);}
   pass(program,target,textures,values){const g=this.gl;g.bindFramebuffer(g.FRAMEBUFFER,target?target.fbo:null);g.viewport(0,0,target?target.w:this.canvas.width,target?target.h:this.canvas.height);g.useProgram(program.p);let unit=0;for(const [name,tex]of Object.entries(textures)){g.activeTexture(g.TEXTURE0+unit);g.bindTexture(g.TEXTURE_2D,tex);if(program.loc[name]!=null)g.uniform1i(program.loc[name],unit);unit++;}for(const [name,v]of Object.entries(values)){const l=program.loc[name];if(l==null)continue;if(v instanceof Float32Array){const t=program.types[name];t===g.FLOAT_VEC4?g.uniform4fv(l,v):t===g.FLOAT_VEC3?g.uniform3fv(l,v):t===g.FLOAT_VEC2?g.uniform2fv(l,v):g.uniform1fv(l,v);}else if(Array.isArray(v))g.uniform2fv(l,v);else if(typeof v==='number')g.uniform1f(l,v);}g.drawArrays(g.TRIANGLES,0,3);}
@@ -374,7 +393,8 @@ void main(){
     this.upload(this.inputA,a);this.upload(this.inputB,b);
     const q=this.quality||1,v={...values,scanCount:(values.scanCount||110)*q,shapeK,sig:[this.sw,this.sh],trackSize:[this.tw,this.th],lines:(values.lines||288)*this.canvas.height/1080,maskPaint:this.maskActive,time,dt,fitA:fit(a),fitB:fit(b),outputSize:[this.canvas.width,this.canvas.height]},i=this.frame%2,j=1-i;
     let paint=this.maskTex;if(this.trackOn&&this.maskActive&&values.trackFollow>.5){const n=this.tk++%2;this.pass(this.track,this.tracks[n],{a:this.inputA,lut:this.lutTex,previous:this.tracks[1-n].texture,seedMask:this.maskTex,found:this.found.texture},{...v,seed:this.trackSeed});this.trackSeed=0;paint=this.tracks[n].texture;this.pass(this.presence,this.found,{mask:paint},v);}else this.trackSeed=1;
-    this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB,paint},v);
+    let plate=this.plates[this.pk%2].texture;if((values.cloak||0)>0&&this.maskActive||((values.cloak||0)>0&&values.keyMode>.5)){const n=++this.pk%2;this.pass(this.plateProg,this.plates[n],{a:this.inputA,paint,previous:this.plates[1-n].texture},v);plate=this.plates[n].texture;}
+    this.pass(this.encode,this.raw,{a:this.inputA,b:this.inputB,paint,plate},v);
     this.pass(this.bend,this.bent[i],{raw:this.raw.texture,previous:this.bent[j].texture},v);
     this.pass(this.receiver,this.locks[i],{signal:this.bent[i].texture,previous:this.locks[j].texture},v);
     this.pass(this.decode,this.decoded,{signal:this.bent[i].texture,locks:this.locks[i].texture,a:this.inputA},v);

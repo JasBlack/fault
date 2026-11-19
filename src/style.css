@@ -40,3 +40,25 @@ body.console-folded #controls{display:none}.monitor-top{display:none}.control-gr
 .transport .open-key,.transport .camera-key{height:34px;flex:none}.transport .open-key{padding:0 14px}.play-key{height:22px;width:28px;min-width:0;padding:0;font-size:9px}.play-key.on{border-color:var(--accent);color:var(--accent)}
 @media(max-width:700px){.transport .open-key{flex:1.7;padding:0 6px}.transport .camera-key,.transport .record-key{flex:1}.transport button{font-size:9px}}
 @media(max-width:700px){.playback-row{height:32px}.playback-row input[type=range]{height:30px}.playback-row input[type=range]::-webkit-slider-thumb{width:18px;height:18px;margin-top:-8px}.playback-row input[type=range]::-moz-range-thumb{width:18px;height:18px}}
+
+/* Phones: the picture fills the top; the settings live in a bottom sheet with one tab per section (built by app.js).
+   The sheet's tabs are a segmented tray, as in xenoglot. Desktop never shows the sheet. */
+#sheet{display:none}
+@media(max-width:700px){
+body.sheet-on{height:100dvh;min-height:0;overflow:hidden;padding-bottom:0}
+body.sheet-on main{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+body.sheet-on .workbench{flex:1;min-height:0;display:flex;flex-direction:column}
+body.sheet-on .monitor{flex:1;min-height:0;aspect-ratio:auto;max-height:none}
+body.sheet-on .inspector-head{display:none}
+body.sheet-on #sheet{display:flex;flex-direction:column;flex:none;height:var(--sheet,46dvh);margin:0 -8px;background:var(--panel);border:1px solid var(--line);border-bottom:0;border-radius:16px 16px 0 0;box-shadow:0 -10px 24px #0006;overflow:hidden;transition:height .18s}
+body.sheet-on #sheet.dragging{transition:none}
+.sheet-grab{flex:none;height:18px;display:grid;place-items:center;cursor:grab;touch-action:none}.sheet-grab:before{content:'';width:38px;height:4px;border-radius:2px;background:var(--keyline)}
+.sheet-tabs{flex:none;display:flex;gap:4px;margin:0 10px 8px;padding:4px;border:1px solid var(--keyline);border-radius:12px;background:var(--well);overflow-x:auto;scrollbar-width:none}.sheet-tabs::-webkit-scrollbar{display:none}
+.sheet-tabs button{flex:none;min-width:70px;height:34px;padding:0 12px;border:1px solid transparent;border-radius:9px;background:transparent;box-shadow:none;color:var(--muted);font:600 9.5px 'IBM Plex Mono',monospace;letter-spacing:.14em;text-transform:uppercase}
+.sheet-tabs button.on{background:var(--key);border-color:var(--accent);color:var(--text);box-shadow:0 1px 0 var(--shadow)}
+#sheetBody{flex:1;min-height:0;overflow-y:auto;padding:0 10px 16px;display:flex;flex-direction:column;gap:8px;overscroll-behavior:contain}
+#sheetBody>*{display:none}#sheetBody>.sec-on{display:flex}#sheetBody>.panel.sec-on{display:block}
+#sheetBody .panel{margin:0}#sheetBody .panel>.panel-title{display:none}
+#sheetBody #controls.sec-on{display:flex;flex-direction:column;gap:8px}
+body.sheet-on #toast{top:56px;bottom:auto}
+}
