@@ -1,6 +1,6 @@
 # FAULT by JAS.BLACK
 
-Version 1.3.0
+Version 1.4.0
 
 **An experimental video instrument for resonant circuit bending, dirty signal mixing and feedback.** By [JAS.BLACK](https://jas.black).
 
@@ -27,7 +27,7 @@ Double-click a slider to reset it. Right-click any setting (slider, tube type, o
 
 ## Run locally
 
-FAULT ships as a single self-contained file. (Only *smart select* and *person* on the mask tab need the internet, to fetch their models the first time.) Download [`FAULT.html`](FAULT.html) and open it in Chrome. It works offline.
+FAULT ships as a single self-contained file. (Only *smart select* and *subject* on the mask tab need the internet, to fetch their models the first time.) Download [`FAULT.html`](FAULT.html) and open it in Chrome. It works offline.
 
 ## Development
 
@@ -96,4 +96,4 @@ FAULT is an original work. It contains no code, presets, binaries or media from 
 ## Licence and credits
 
 Code: [MIT](LICENSE). 
-Design, concept and direction by JAS.BLACK. Part of the JAS.BLACK tool family with [Code Painter](https://paint.jas.black), [SnipSnap](https://snap.jas.black) and [Growth](https://growth.jas.black). The person finder uses [MediaPipe Tasks](https://github.com/google-ai-edge/mediapipe) (Apache 2.0), loaded on demand. MP4 recording uses [mp4-muxer](https://github.com/Vanilagy/mp4-muxer) by Vanilagy, MIT ([licence](src/vendor/mp4-muxer-LICENSE.txt)). Fonts: [Archivo](src/fonts/archivo-OFL.txt) and [IBM Plex Mono](src/fonts/ibmplexmono-OFL.txt), both under the SIL Open Font License 1.1.
+Design, concept and direction by JAS.BLACK. Part of the JAS.BLACK tool family with [Code Painter](https://paint.jas.black), [SnipSnap](https://snap.jas.black) and [Growth](https://growth.jas.black). The person finder uses [MediaPipe Tasks](https://github.com/google-ai-edge/mediapipe) (Apache 2.0), loaded on demand. The subject finder also uses [U-2-Netp](https://huggingface.co/BritishWerewolf/U-2-Netp) (Apache 2.0) through [onnxruntime-web](https://github.com/microsoft/onnxruntime) (MIT), loaded on demand. MP4 recording uses [mp4-muxer](https://github.com/Vanilagy/mp4-muxer) by Vanilagy, MIT ([licence](src/vendor/mp4-muxer-LICENSE.txt)). Fonts: [Archivo](src/fonts/archivo-OFL.txt) and [IBM Plex Mono](src/fonts/ibmplexmono-OFL.txt), both under the SIL Open Font License 1.1.

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0 — looks remember, subject finder
+
+- **Looks remember your changes** for the visit: change a look, switch to another and back, and it is as you dialled it in. An edited look shows a purple dot after its name. **Reset** (top of the console, or *reset this look* under the looks on phones) puts the current look back to its own settings. A fresh visit starts every look at its defaults.
+- **subject** (was person, mask tab): finds the main subject in every frame, whether a person, an animal or an object. It uses MediaPipe's segmenter and, when that finds nothing, U-2-Netp (Apache 2.0, 4.5 MB) for the most prominent object. Both load on first use.
+- **Analog error** turns subject on by itself, and choosing another look turns it off again.
+- **Voltage fold** removed; there are 15 looks.
+- **Phones:** the sheet's tabs are in two rows, so every section is visible, and all 15 looks fit in the looks tab.
+
 ## 1.3.0 — phone sheet, better cloak
 
 - **Phones:** the picture fills the top of the screen and the settings live in a bottom sheet, so you can move sliders and watch the picture at the same time. The sheet has one tab per section (looks, source, bend, break, display, tube, mask, parts, record) in a segmented tray, as in xenoglot. Drag the handle to resize it; tap it to fold the sheet down to just its tabs. Desktop is unchanged.
